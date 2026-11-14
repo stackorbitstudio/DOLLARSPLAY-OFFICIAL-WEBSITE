@@ -175,7 +175,8 @@ export default function DashboardPage() {
         </section>
       
        
- <h2 className="text-xl font-bold mb-4">
+ 
+<h2 className="text-xl font-bold mb-4">
   Your Activities
 </h2>
 
@@ -188,20 +189,27 @@ export default function DashboardPage() {
     { icon: "📤", title: "Withdrawals" },
     { icon: "👤", title: "My Profile" },
   ].map((item) => {
+    const link =
+      item.title === "Games"
+        ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
+        : item.title === "My Profile"
+        ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
+        : "";
+
     const content = (
       <>
         <div className="text-3xl mb-3">{item.icon}</div>
         <h3 className="font-bold">{item.title}</h3>
         <p className="text-xs text-gray-500 mt-2">
-          {item.title === "My Profile" ? "Open Profile" : "Coming Soon"}
+          {link ? "Open" : "Coming Soon"}
         </p>
       </>
     );
 
-    return item.title === "My Profile" ? (
+    return link ? (
       <a
         key={item.title}
-        href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
+        href={link}
         className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
       >
         {content}
@@ -216,6 +224,7 @@ export default function DashboardPage() {
     );
   })}
 </section>
+      
         
         <footer className="text-center text-xs text-gray-600 mt-10 pb-4">
           © DOLLARSPLAY. All rights reserved.
