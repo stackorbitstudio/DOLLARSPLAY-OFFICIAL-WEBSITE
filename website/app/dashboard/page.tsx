@@ -183,13 +183,20 @@ export default function DashboardPage() {
 <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
   {[
     { icon: "🎮", title: "Games" },
-    { icon: "📋", title: "Tasks" },
+    { icon: "📋", title: "Tasks", link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/" },
     { icon: "👥", title: "Referrals" },
     { icon: "💰", title: "Wallet" },
     { icon: "📤", title: "Withdrawals" },
     { icon: "👤", title: "My Profile" },
   ].map((item) => {
     const link =
+  item.title === "Games"
+    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
+    : item.title === "My Profile"
+    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
+    : item.title === "Tasks"
+    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/"
+    : "";
       item.title === "Games"
         ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
         : item.title === "My Profile"
