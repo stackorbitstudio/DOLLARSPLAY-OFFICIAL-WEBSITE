@@ -1,113 +1,94 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+const games = [
+  {
+    name: "Tap Challenge",
+    description: "10 seconds mein jitni baar ho sake tap karo.",
+    icon: "👆",
+    status: "Available",
+    link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/tap-challenge/",
+  },
+  {
+    name: "Coming Soon",
+    description: "A new exciting game is on the way.",
+    icon: "🎯",
+    status: "Coming Soon",
+    link: "",
+  },
+  {
+    name: "Coming Soon",
+    description: "More games will be added soon.",
+    icon: "🧩",
+    status: "Coming Soon",
+    link: "",
+  },
+];
 
-export default function TapChallengePage() {
-  const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(10);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [finished, setFinished] = useState(false);
-
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const timer = setInterval(() => {
-      setTimeLeft((previous) => previous - 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isPlaying]);
-
-  useEffect(() => {
-    if (isPlaying && timeLeft <= 0) {
-      setIsPlaying(false);
-      setFinished(true);
-    }
-  }, [timeLeft, isPlaying]);
-
-  function startGame() {
-    setScore(0);
-    setTimeLeft(10);
-    setFinished(false);
-    setIsPlaying(true);
-  }
-
-  function handleTap() {
-    if (isPlaying) {
-      setScore((previous) => previous + 1);
-    }
-  }
-
+export default function GamesPage() {
   return (
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
-      <div className="max-w-lg mx-auto">
+      <div className="max-w-5xl mx-auto">
 
         <a
-          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
+          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/dashboard/"
           className="text-lime-400 text-sm"
         >
-          ← Back to Games
+          ← Back to Dashboard
         </a>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-10 mb-10">
           <h1 className="text-3xl font-extrabold">
-            TAP <span className="text-lime-400">CHALLENGE</span>
+            DOLLARS<span className="text-lime-400">PLAY</span>
           </h1>
-
-          <p className="text-gray-400 mt-3">
-            Tap as fast as you can in 10 seconds!
+          <h2 className="text-2xl font-bold mt-5">
+            Games <span className="text-lime-400">Zone</span>
+          </h2>
+          <p className="text-gray-400 mt-2">
+            Choose your favourite game and start playing!
           </p>
         </div>
 
-        <section className="grid grid-cols-2 gap-4 mt-10">
-          <div className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 text-center">
-            <p className="text-gray-400 text-sm">Time Left</p>
-            <p className="text-4xl font-extrabold text-lime-400 mt-2">
-              {timeLeft}s
-            </p>
-          </div>
+        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+          {games.map((game, index) => (
+            <div
+              key={index}
+              className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-6 text-center"
+            >
+              <div className="text-5xl mb-5">{game.icon}</div>
 
-          <div className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 text-center">
-            <p className="text-gray-400 text-sm">Your Score</p>
-            <p className="text-4xl font-extrabold text-white mt-2">
-              {score}
-            </p>
-          </div>
+              <h3 className="text-xl font-bold">
+                {game.name}
+              </h3>
+
+              <p className="text-sm text-gray-400 mt-3 mb-5">
+                {game.description}
+              </p>
+
+              {game.link ? (
+                <a
+                  href={game.link}
+                  className="block rounded-xl bg-lime-400 py-3 font-bold text-black"
+                >
+                  PLAY NOW
+                </a>
+              ) : (
+                <button
+                  disabled
+                  className="w-full rounded-xl bg-purple-900/50 py-3 text-gray-400"
+                >
+                  Coming Soon
+                </button>
+              )}
+            </div>
+          ))}
         </section>
 
-        <button
-          onClick={handleTap}
-          disabled={!isPlaying}
-          className="w-full h-56 mt-8 rounded-3xl border-2 border-lime-400 bg-gradient-to-br from-purple-900 to-[#160e27] text-4xl font-extrabold text-lime-400 disabled:opacity-50 active:scale-95 transition"
-        >
-          {isPlaying ? "TAP!" : finished ? "TIME UP!" : "READY?"}
-        </button>
-
-        {finished && (
-          <div className="text-center mt-6">
-            <h2 className="text-2xl font-bold text-lime-400">
-              Game Over!
-            </h2>
-            <p className="text-gray-300 mt-2">
-              Your final score: {score} taps
-            </p>
-          </div>
-        )}
-
-        <button
-          onClick={startGame}
-          disabled={isPlaying}
-          className="w-full mt-6 rounded-xl bg-lime-400 py-4 font-bold text-black disabled:opacity-40"
-        >
-          {finished ? "PLAY AGAIN" : isPlaying ? "GAME RUNNING..." : "START GAME"}
-        </button>
-
-        <p className="text-center text-xs text-gray-500 mt-6">
-          This is a practice game. Coin rewards are not enabled yet.
+        <p className="text-center text-xs text-gray-500 mt-10">
+          More exciting games are coming to DOLLARSPLAY.
         </p>
 
       </div>
     </main>
   );
-}
+    }
