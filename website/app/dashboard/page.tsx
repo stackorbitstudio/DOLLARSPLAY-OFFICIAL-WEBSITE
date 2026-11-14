@@ -184,12 +184,21 @@ export default function DashboardPage() {
   {[
     { icon: "🎮", title: "Games" },
     { icon: "📋", title: "Tasks", link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/" },
-    { icon: "👥", title: "Referrals" },
+    { icon: "👥", title: "Referrals", link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/" },
     { icon: "💰", title: "Wallet" },
     { icon: "📤", title: "Withdrawals" },
     { icon: "👤", title: "My Profile" },
   ].map((item) => {
     const link =
+  item.title === "Games"
+    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
+    : item.title === "My Profile"
+    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
+    : item.title === "Tasks"
+    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/"
+    : item.title === "Referrals"
+    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/"
+    : "";
   item.title === "Games"
     ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
     : item.title === "My Profile"
