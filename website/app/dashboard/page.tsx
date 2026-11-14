@@ -173,33 +173,50 @@ export default function DashboardPage() {
             <p className="text-xs text-gray-500">Coins</p>
           </div>
         </section>
+      
+       
+ <h2 className="text-xl font-bold mb-4">
+  Your Activities
+</h2>
 
-        <h2 className="text-xl font-bold mb-4">
-          Your Activities
-        </h2>
+<section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+  {[
+    { icon: "🎮", title: "Games" },
+    { icon: "📋", title: "Tasks" },
+    { icon: "👥", title: "Referrals" },
+    { icon: "💰", title: "Wallet" },
+    { icon: "📤", title: "Withdrawals" },
+    { icon: "👤", title: "My Profile" },
+  ].map((item) => {
+    const content = (
+      <>
+        <div className="text-3xl mb-3">{item.icon}</div>
+        <h3 className="font-bold">{item.title}</h3>
+        <p className="text-xs text-gray-500 mt-2">
+          {item.title === "My Profile" ? "Open Profile" : "Coming Soon"}
+        </p>
+      </>
+    );
 
-        <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {[
-            { icon: "🎮", title: "Games" },
-            { icon: "📋", title: "Tasks" },
-            { icon: "👥", title: "Referrals" },
-            { icon: "💰", title: "Wallet" },
-            { icon: "📤", title: "Withdrawals" },
-            { icon: "👤", title: "My Profile" },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 text-center"
-            >
-              <div className="text-3xl mb-3">{item.icon}</div>
-              <h3 className="font-bold">{item.title}</h3>
-              <p className="text-xs text-gray-500 mt-2">
-                Coming Soon
-              </p>
-            </div>
-          ))}
-        </section>
-
+    return item.title === "My Profile" ? (
+      <a
+        key={item.title}
+        href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
+        className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
+      >
+        {content}
+      </a>
+    ) : (
+      <div
+        key={item.title}
+        className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 text-center"
+      >
+        {content}
+      </div>
+    );
+  })}
+</section>
+        
         <footer className="text-center text-xs text-gray-600 mt-10 pb-4">
           © DOLLARSPLAY. All rights reserved.
         </footer>
