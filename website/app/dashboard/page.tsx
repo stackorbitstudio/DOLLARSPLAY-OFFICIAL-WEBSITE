@@ -95,8 +95,8 @@ export default function DashboardPage() {
 
   async function handleLogout() {
     await signOut(auth);
-    window.location.href =
-      "DOLLARSPLAY-OFFICIAL-WEBSITE/";
+    window.location.replace(
+      "/DOLLARSPLAY-OFFICIAL-WEBSITE/-");
   }
 
   const activities = [
