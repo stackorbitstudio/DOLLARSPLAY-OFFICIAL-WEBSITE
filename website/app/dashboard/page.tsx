@@ -19,8 +19,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
-        window.location.href =
-          "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+        window.location.href = "/login/";
         return;
       }
 
@@ -29,8 +28,7 @@ export default function DashboardPage() {
 
         if (!currentUser.emailVerified) {
           await signOut(auth);
-          window.location.href =
-            "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+          window.location.href = "/login/";
           return;
         }
 
@@ -76,8 +74,7 @@ export default function DashboardPage() {
 
   async function handleLogout() {
     await signOut(auth);
-    window.location.href =
-      "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+    window.location.href = "/login/";
   }
 
   if (loading) {
@@ -92,32 +89,32 @@ export default function DashboardPage() {
     {
       icon: "🎮",
       title: "Games",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/",
+      link: "/games/",
     },
     {
       icon: "📋",
       title: "Tasks",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/",
+      link: "/tasks/",
     },
     {
       icon: "👥",
       title: "Referrals",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/",
+      link: "/referrals/",
     },
     {
       icon: "💰",
       title: "Wallet",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/wallet/",
+      link: "/wallet/",
     },
     {
       icon: "📤",
       title: "Withdrawals",
-      link: "",
+      link: "/withdrawals/",
     },
     {
       icon: "👤",
       title: "My Profile",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/",
+      link: "/profile/",
     },
   ];
 
@@ -210,34 +207,19 @@ export default function DashboardPage() {
         </h2>
 
         <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-          {activities.map((item) => {
-            const content = (
-              <>
-                <div className="text-3xl mb-3">{item.icon}</div>
-                <h3 className="font-bold">{item.title}</h3>
-                <p className="text-xs text-gray-500 mt-2">
-                  {item.link ? "Open" : "Coming Soon"}
-                </p>
-              </>
-            );
-
-            return item.link ? (
-              <a
-                key={item.title}
-                href={item.link}
-                className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
-              >
-                {content}
-              </a>
-            ) : (
-              <div
-                key={item.title}
-                className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 text-center"
-              >
-                {content}
-              </div>
-            );
-          })}
+          {activities.map((item) => (
+            <a
+              key={item.title}
+              href={item.link}
+              className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
+            >
+              <div className="text-3xl mb-3">{item.icon}</div>
+              <h3 className="font-bold">{item.title}</h3>
+              <p className="text-xs text-gray-500 mt-2">
+                Open
+              </p>
+            </a>
+          ))}
         </section>
 
         <footer className="text-center text-xs text-gray-600 mt-10 pb-4">
@@ -248,4 +230,4 @@ export default function DashboardPage() {
     </main>
   );
       }
-  
+        
