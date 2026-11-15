@@ -2,31 +2,86 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
+import {
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
+import { auth } from "../../../lib/firebase";
+
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
 
 export default function TapChallengePage() {
   const [score, setScore] = useState(0);
   const [timeLeft, setTimeLeft] = useState(10);
   const [isPlaying, setIsPlaying] = useState(false);
   const [finished, setFinished] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
-    if (!isPlaying) return;
+    let active = true;
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!active) return;
+
+      if (!user) {
+        setAuthorized(false);
+        window.location.replace(LOGIN_URL);
+        return;
+      }
+
+      if (!user.emailVerified) {
+        setAuthorized(false);
+        await signOut(auth);
+
+        if (active) {
+          window.location.replace(LOGIN_URL);
+        }
+        return;
+      }
+
+      setAuthorized(true);
+      setLoading(false);
+    });
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && !auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      active = false;
+      unsubscribe();
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isPlaying || !authorized) return;
 
     const timer = setInterval(() => {
       setTimeLeft((previous) => previous - 1);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isPlaying]);
+  }, [isPlaying, authorized]);
 
   useEffect(() => {
     if (isPlaying && timeLeft <= 0) {
+      setTimeLeft(0);
       setIsPlaying(false);
       setFinished(true);
     }
   }, [timeLeft, isPlaying]);
 
   function startGame() {
+    if (!authorized) return;
+
     setScore(0);
     setTimeLeft(10);
     setFinished(false);
@@ -34,21 +89,28 @@ export default function TapChallengePage() {
   }
 
   function handleTap() {
-    if (isPlaying) {
+    if (isPlaying && authorized) {
       setScore((previous) => previous + 1);
     }
+  }
+
+  if (loading || !authorized) {
+    return (
+      <main className="min-h-screen bg-[#090611] flex items-center justify-center text-lime-400">
+        Loading Tap Challenge...
+      </main>
+    );
   }
 
   return (
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-lg mx-auto">
-
-        <a
-          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
+        <Link
+          href="/games/"
           className="text-lime-400 text-sm"
         >
           ← Back to Games
-        </a>
+        </Link>
 
         <div className="text-center mt-12">
           <h1 className="text-3xl font-extrabold">
@@ -106,8 +168,8 @@ export default function TapChallengePage() {
         <p className="text-center text-xs text-gray-500 mt-6">
           This is a practice game. Coin rewards are not enabled yet.
         </p>
-
       </div>
     </main>
   );
-}
+      }
+        
