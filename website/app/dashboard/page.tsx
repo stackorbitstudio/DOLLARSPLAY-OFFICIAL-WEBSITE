@@ -7,6 +7,12 @@ import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 
+const HOME_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/";
+
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState("Player");
@@ -25,8 +31,8 @@ export default function DashboardPage() {
       if (!active) return;
 
       if (!currentUser) {
-        window.location.href =
-          "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+        setUser(null);
+        window.location.replace(LOGIN_URL);
         return;
       }
 
@@ -34,8 +40,7 @@ export default function DashboardPage() {
         await signOut(auth);
 
         if (active) {
-          window.location.href =
-            "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+          window.location.replace(LOGIN_URL);
         }
         return;
       }
@@ -87,18 +92,31 @@ export default function DashboardPage() {
       }
     });
 
+    // Browser Back / cached page par dobara authentication check
+    const checkAuthentication = () => {
+      if (!auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", checkAuthentication);
+
     return () => {
       active = false;
       unsubscribe();
+      window.removeEventListener("pageshow", checkAuthentication);
     };
   }, []);
 
   async function handleLogout() {
-  await signOut(auth);
-
-  window.location.replace(
-    "/DOLLARSPLAY-OFFICIAL-WEBSITE-/"
-  );
+    try {
+      await signOut(auth);
+      setUser(null);
+      window.location.replace(HOME_URL);
+    } catch (err) {
+      console.error("LOGOUT ERROR:", err);
+      setError("Logout failed. Please try again.");
+    }
   }
 
   const activities = [
@@ -109,6 +127,16 @@ export default function DashboardPage() {
     { icon: "📤", title: "Withdrawals", link: "/withdrawals/" },
     { icon: "👤", title: "My Profile", link: "/profile/" },
   ];
+
+  if (loading || !user) {
+    return (
+      <main className="min-h-screen bg-[#090611] flex items-center justify-center text-white">
+        <p className="text-lime-400 font-semibold">
+          Loading DOLLARSPLAY...
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#090611] text-white px-4 py-6">
@@ -224,5 +252,5 @@ export default function DashboardPage() {
       </div>
     </main>
   );
-          }
+    }
           
