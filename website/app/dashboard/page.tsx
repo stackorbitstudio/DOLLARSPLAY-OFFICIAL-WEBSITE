@@ -2,14 +2,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 
 export default function DashboardPage() {
-  const router = useRouter();
-
   const [user, setUser] = useState<User | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("");
@@ -27,18 +24,18 @@ export default function DashboardPage() {
         return;
       }
 
-      await currentUser.reload();
-
-      if (!currentUser.emailVerified) {
-        await signOut(auth);
-        window.location.href =
-          "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
-        return;
-      }
-
-      setUser(currentUser);
-
       try {
+        await currentUser.reload();
+
+        if (!currentUser.emailVerified) {
+          await signOut(auth);
+          window.location.href =
+            "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+          return;
+        }
+
+        setUser(currentUser);
+
         const userRef = doc(db, "users", currentUser.uid);
         const walletRef = doc(db, "wallets", currentUser.uid);
 
@@ -63,7 +60,8 @@ export default function DashboardPage() {
           setTotalEarned(Number(wallet.totalEarned || 0));
           setTotalWithdrawn(Number(wallet.totalWithdrawn || 0));
         }
-      } catch {
+      } catch (err) {
+        console.error("DASHBOARD ERROR:", err);
         setError(
           "Dashboard data could not be loaded. Please check your connection or Firebase permissions."
         );
@@ -89,6 +87,39 @@ export default function DashboardPage() {
       </main>
     );
   }
+
+  const activities = [
+    {
+      icon: "🎮",
+      title: "Games",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/",
+    },
+    {
+      icon: "📋",
+      title: "Tasks",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/",
+    },
+    {
+      icon: "👥",
+      title: "Referrals",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/",
+    },
+    {
+      icon: "💰",
+      title: "Wallet",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/wallet/",
+    },
+    {
+      icon: "📤",
+      title: "Withdrawals",
+      link: "",
+    },
+    {
+      icon: "👤",
+      title: "My Profile",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/",
+    },
+  ];
 
   return (
     <main className="min-h-screen bg-[#090611] text-white px-4 py-6">
@@ -173,75 +204,42 @@ export default function DashboardPage() {
             <p className="text-xs text-gray-500">Coins</p>
           </div>
         </section>
-      
-       
- 
-<h2 className="text-xl font-bold mb-4">
-  Your Activities
-</h2>
 
-<section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-  {[
-    { icon: "🎮", title: "Games" },
-    { icon: "📋", title: "Tasks", link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/" },
-    { icon: "👥", title: "Referrals", link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/" },
-    { icon: "💰", title: "Wallet" },
-    { icon: "📤", title: "Withdrawals" },
-    { icon: "👤", title: "My Profile" },
-  ].map((item) => {
-    const link =
-  item.title === "Games"
-    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
-    : item.title === "My Profile"
-    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
-    : item.title === "Tasks"
-    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/"
-    : item.title === "Referrals"
-    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/"
-    : "";
-  item.title === "Games"
-    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
-    : item.title === "My Profile"
-    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
-    : item.title === "Tasks"
-    ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/"
-    : "";
-      item.title === "Games"
-        ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/"
-        : item.title === "My Profile"
-        ? "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/"
-        : "";
+        <h2 className="text-xl font-bold mb-4">
+          Your Activities
+        </h2>
 
-    const content = (
-      <>
-        <div className="text-3xl mb-3">{item.icon}</div>
-        <h3 className="font-bold">{item.title}</h3>
-        <p className="text-xs text-gray-500 mt-2">
-          {link ? "Open" : "Coming Soon"}
-        </p>
-      </>
-    );
+        <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          {activities.map((item) => {
+            const content = (
+              <>
+                <div className="text-3xl mb-3">{item.icon}</div>
+                <h3 className="font-bold">{item.title}</h3>
+                <p className="text-xs text-gray-500 mt-2">
+                  {item.link ? "Open" : "Coming Soon"}
+                </p>
+              </>
+            );
 
-    return link ? (
-      <a
-        key={item.title}
-        href={link}
-        className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
-      >
-        {content}
-      </a>
-    ) : (
-      <div
-        key={item.title}
-        className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 text-center"
-      >
-        {content}
-      </div>
-    );
-  })}
-</section>
-      
-        
+            return item.link ? (
+              <a
+                key={item.title}
+                href={item.link}
+                className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
+              >
+                {content}
+              </a>
+            ) : (
+              <div
+                key={item.title}
+                className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 text-center"
+              >
+                {content}
+              </div>
+            );
+          })}
+        </section>
+
         <footer className="text-center text-xs text-gray-600 mt-10 pb-4">
           © DOLLARSPLAY. All rights reserved.
         </footer>
@@ -249,5 +247,5 @@ export default function DashboardPage() {
       </div>
     </main>
   );
-          }
+      }
   
