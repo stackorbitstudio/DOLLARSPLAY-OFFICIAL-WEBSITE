@@ -3,9 +3,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
+
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
 
 type PaymentMethod =
   | "Easypaisa"
@@ -35,8 +38,11 @@ export default function WithdrawalsPage() {
 
   useEffect(() => {
     let unsubscribeWallet: (() => void) | undefined;
+    let active = true;
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      if (!active) return;
+
       if (unsubscribeWallet) {
         unsubscribeWallet();
         unsubscribeWallet = undefined;
@@ -44,8 +50,18 @@ export default function WithdrawalsPage() {
 
       if (!user) {
         setLoggedIn(false);
-        setError("Please log in to view withdrawals.");
         setLoading(false);
+        window.location.replace(LOGIN_URL);
+        return;
+      }
+
+      if (!user.emailVerified) {
+        setLoggedIn(false);
+        await signOut(auth);
+
+        if (active) {
+          window.location.replace(LOGIN_URL);
+        }
         return;
       }
 
@@ -56,6 +72,8 @@ export default function WithdrawalsPage() {
       unsubscribeWallet = onSnapshot(
         doc(db, "wallets", user.uid),
         (snapshot) => {
+          if (!active) return;
+
           if (snapshot.exists()) {
             const data = snapshot.data();
 
@@ -65,6 +83,7 @@ export default function WithdrawalsPage() {
 
             setError("");
           } else {
+            setWallet({ coinBalance: 0 });
             setError("Wallet record was not found.");
           }
 
@@ -72,15 +91,32 @@ export default function WithdrawalsPage() {
         },
         (err) => {
           console.error("WITHDRAWAL WALLET ERROR:", err);
-          setError("Unable to load your wallet. Please try again.");
-          setLoading(false);
+
+          if (active) {
+            setError("Unable to load your wallet. Please try again.");
+            setLoading(false);
+          }
         }
       );
     });
 
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && !auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
     return () => {
+      active = false;
       unsubscribeAuth();
-      if (unsubscribeWallet) unsubscribeWallet();
+
+      if (unsubscribeWallet) {
+        unsubscribeWallet();
+      }
+
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
 
@@ -291,4 +327,4 @@ export default function WithdrawalsPage() {
       `}</style>
     </main>
   );
-}
+        }
