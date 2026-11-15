@@ -3,12 +3,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import {
   doc,
   onSnapshot,
 } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
+
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
 
 interface WalletData {
   coinBalance: number;
@@ -28,16 +31,28 @@ export default function WalletPage() {
 
   useEffect(() => {
     let unsubscribeWallet: (() => void) | undefined;
+    let active = true;
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
+      if (!active) return;
+
       if (unsubscribeWallet) {
         unsubscribeWallet();
         unsubscribeWallet = undefined;
       }
 
       if (!user) {
-        setError("Please log in to view your wallet.");
         setLoading(false);
+        window.location.replace(LOGIN_URL);
+        return;
+      }
+
+      if (!user.emailVerified) {
+        await signOut(auth);
+
+        if (active) {
+          window.location.replace(LOGIN_URL);
+        }
         return;
       }
 
@@ -47,6 +62,8 @@ export default function WalletPage() {
       unsubscribeWallet = onSnapshot(
         doc(db, "wallets", user.uid),
         (snapshot) => {
+          if (!active) return;
+
           if (snapshot.exists()) {
             const data = snapshot.data();
 
@@ -58,6 +75,11 @@ export default function WalletPage() {
 
             setError("");
           } else {
+            setWallet({
+              coinBalance: 0,
+              totalEarned: 0,
+              totalWithdrawn: 0,
+            });
             setError("Wallet record was not found.");
           }
 
@@ -65,15 +87,33 @@ export default function WalletPage() {
         },
         (err) => {
           console.error("WALLET ERROR:", err);
-          setError("Unable to load wallet. Please try again later.");
-          setLoading(false);
+
+          if (active) {
+            setError("Unable to load wallet. Please try again later.");
+            setLoading(false);
+          }
         }
       );
     });
 
+    // Android Back se cached page restore hone par check
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && !auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
     return () => {
+      active = false;
       unsubscribeAuth();
-      if (unsubscribeWallet) unsubscribeWallet();
+
+      if (unsubscribeWallet) {
+        unsubscribeWallet();
+      }
+
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
 
