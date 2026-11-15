@@ -1,4 +1,14 @@
 
+"use client";
+
+import { useEffect } from "react";
+import Link from "next/link";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../../lib/firebase";
+
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+
 const tasks = [
   {
     icon: "📅",
@@ -27,16 +37,42 @@ const tasks = [
 ];
 
 export default function TasksPage() {
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.replace(LOGIN_URL);
+        return;
+      }
+
+      if (!user.emailVerified) {
+        await signOut(auth);
+        window.location.replace(LOGIN_URL);
+      }
+    });
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && !auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
+
   return (
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-5xl mx-auto">
-
-        <a
-          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/dashboard/"
+        <Link
+          href="/dashboard/"
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
-        </a>
+        </Link>
 
         <div className="text-center mt-10 mb-10">
           <h1 className="text-3xl font-extrabold">
@@ -86,8 +122,8 @@ export default function TasksPage() {
             </div>
           ))}
         </section>
-
       </div>
     </main>
   );
-}
+  }
+          
