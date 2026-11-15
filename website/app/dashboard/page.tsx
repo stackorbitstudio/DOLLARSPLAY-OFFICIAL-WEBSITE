@@ -9,12 +9,13 @@ import { auth, db } from "../../lib/firebase";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
-  const [displayName, setDisplayName] = useState("");
+  const [displayName, setDisplayName] = useState("Player");
   const [photoURL, setPhotoURL] = useState("");
   const [coinBalance, setCoinBalance] = useState(0);
   const [totalEarned, setTotalEarned] = useState(0);
   const [totalWithdrawn, setTotalWithdrawn] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -29,22 +30,22 @@ export default function DashboardPage() {
         return;
       }
 
-      try {
-        if (!currentUser.emailVerified) {
-          await signOut(auth);
+      if (!currentUser.emailVerified) {
+        await signOut(auth);
 
-          if (active) {
-            window.location.href =
-              "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
-          }
-          return;
+        if (active) {
+          window.location.href =
+            "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
         }
+        return;
+      }
 
-        if (!active) return;
+      setUser(currentUser);
+      setDisplayName(currentUser.displayName || "Player");
+      setLoading(false);
+      setDataLoading(true);
 
-        setUser(currentUser);
-        setDisplayName(currentUser.displayName || "Player");
-
+      try {
         const userRef = doc(db, "users", currentUser.uid);
         const walletRef = doc(db, "wallets", currentUser.uid);
 
@@ -71,7 +72,6 @@ export default function DashboardPage() {
           setTotalEarned(Number(wallet.totalEarned || 0));
           setTotalWithdrawn(Number(wallet.totalWithdrawn || 0));
         }
-
       } catch (err) {
         console.error("DASHBOARD ERROR:", err);
 
@@ -82,7 +82,7 @@ export default function DashboardPage() {
         }
       } finally {
         if (active) {
-          setLoading(false);
+          setDataLoading(false);
         }
       }
     });
@@ -99,45 +99,13 @@ export default function DashboardPage() {
       "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
   }
 
-  if (loading) {
-    return (
-      <main className="min-h-screen bg-[#090611] flex items-center justify-center text-lime-400 text-lg">
-        Loading DOLLARSPLAY...
-      </main>
-    );
-  }
-
   const activities = [
-    {
-      icon: "🎮",
-      title: "Games",
-      link: "/games/",
-    },
-    {
-      icon: "📋",
-      title: "Tasks",
-      link: "/tasks/",
-    },
-    {
-      icon: "👥",
-      title: "Referrals",
-      link: "/referrals/",
-    },
-    {
-      icon: "💰",
-      title: "Wallet",
-      link: "/wallet/",
-    },
-    {
-      icon: "📤",
-      title: "Withdrawals",
-      link: "/withdrawals/",
-    },
-    {
-      icon: "👤",
-      title: "My Profile",
-      link: "/profile/",
-    },
+    { icon: "🎮", title: "Games", link: "/games/" },
+    { icon: "📋", title: "Tasks", link: "/tasks/" },
+    { icon: "👥", title: "Referrals", link: "/referrals/" },
+    { icon: "💰", title: "Wallet", link: "/wallet/" },
+    { icon: "📤", title: "Withdrawals", link: "/withdrawals/" },
+    { icon: "👤", title: "My Profile", link: "/profile/" },
   ];
 
   return (
@@ -151,7 +119,6 @@ export default function DashboardPage() {
               alt="DollarsPlay"
               className="w-12 h-12 object-contain"
             />
-
             <h1 className="text-xl sm:text-2xl font-extrabold">
               DOLLARS<span className="text-lime-400">PLAY</span>
             </h1>
@@ -181,11 +148,9 @@ export default function DashboardPage() {
 
             <div className="min-w-0">
               <p className="text-gray-400 text-sm">Welcome back,</p>
-
               <h2 className="text-2xl font-bold truncate">
                 {displayName}
               </h2>
-
               <p className="text-xs text-lime-400 mt-1">
                 Verified Account
               </p>
@@ -200,41 +165,34 @@ export default function DashboardPage() {
         )}
 
         <section className="rounded-3xl border border-lime-400/40 bg-[#151326] p-6 mb-6">
-          <p className="text-gray-400 text-sm">
-            Your Coin Balance
-          </p>
-
+          <p className="text-gray-400 text-sm">Your Coin Balance</p>
           <h2 className="text-4xl font-extrabold text-lime-400 mt-2">
             {coinBalance.toLocaleString()}
           </h2>
-
           <p className="text-gray-400 text-sm mt-1">
             DollarsPlay Coins
           </p>
+          {dataLoading && (
+            <p className="text-xs text-gray-500 mt-2">
+              Updating balance...
+            </p>
+          )}
         </section>
 
         <section className="grid grid-cols-2 gap-4 mb-8">
           <div className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-4">
-            <p className="text-gray-400 text-sm">
-              Total Earned
-            </p>
-
+            <p className="text-gray-400 text-sm">Total Earned</p>
             <p className="text-2xl font-bold text-lime-400 mt-2">
               {totalEarned.toLocaleString()}
             </p>
-
             <p className="text-xs text-gray-500">Coins</p>
           </div>
 
           <div className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-4">
-            <p className="text-gray-400 text-sm">
-              Total Withdrawn
-            </p>
-
+            <p className="text-gray-400 text-sm">Total Withdrawn</p>
             <p className="text-2xl font-bold text-white mt-2">
               {totalWithdrawn.toLocaleString()}
             </p>
-
             <p className="text-xs text-gray-500">Coins</p>
           </div>
         </section>
@@ -250,17 +208,9 @@ export default function DashboardPage() {
               href={item.link}
               className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
             >
-              <div className="text-3xl mb-3">
-                {item.icon}
-              </div>
-
-              <h3 className="font-bold">
-                {item.title}
-              </h3>
-
-              <p className="text-xs text-gray-500 mt-2">
-                Open
-              </p>
+              <div className="text-3xl mb-3">{item.icon}</div>
+              <h3 className="font-bold">{item.title}</h3>
+              <p className="text-xs text-gray-500 mt-2">Open</p>
             </Link>
           ))}
         </section>
@@ -273,4 +223,4 @@ export default function DashboardPage() {
     </main>
   );
           }
-    
+          
