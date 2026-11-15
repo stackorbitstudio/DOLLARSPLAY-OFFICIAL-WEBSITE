@@ -5,7 +5,7 @@ export default function Home() {
       <header className="wrap nav">
         <a href="#" className="brand">
           <img
-            src="/logo.png"
+            src="/DOLLARSPLAY-OFFICIAL-WEBSITE-/logo.png"
             alt="DollarsPlay Logo"
             width="48"
             height="48"
@@ -16,7 +16,15 @@ export default function Home() {
         <nav>
           <a href="#features">Features</a>{" "}
           <a href="#how">How It Works</a>{" "}
-          <a href="#join" className="btn">Get Started</a>
+          <a href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/">
+            Login
+          </a>{" "}
+          <a
+            href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/signup/"
+            className="btn"
+          >
+            Create Account
+          </a>
         </nav>
       </header>
 
@@ -25,27 +33,39 @@ export default function Home() {
           <span className="eyebrow">
             WELCOME TO DOLLARSPLAY
           </span>
+
           <h1>
             PLAY MORE.
             <br />
             <span>ACHIEVE MORE.</span>
           </h1>
+
           <p className="lead">
             Explore exciting games, complete tasks,
             build your referral network and discover
             a new rewards experience.
           </p>
+
           <div className="hero-buttons">
-            <a href="#join" className="btn">Get Started</a>
-            <a href="#features" className="btn btn-ghost">
-              Explore Features
+            <a
+              href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/signup/"
+              className="btn"
+            >
+              Create Account
+            </a>
+
+            <a
+              href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/"
+              className="btn btn-ghost"
+            >
+              Login
             </a>
           </div>
         </div>
 
         <div className="hero-art">
           <img
-            src="/logo.png"
+            src="/DOLLARSPLAY-OFFICIAL-WEBSITE-/logo.png"
             alt="Official DollarsPlay Logo"
             width="280"
             height="280"
@@ -74,16 +94,19 @@ export default function Home() {
             <h3>Games</h3>
             <p>Explore entertaining games and challenges.</p>
           </article>
+
           <article className="feature">
             <div className="icon-box">🎯</div>
             <h3>Tasks</h3>
             <p>Complete activities and track progress.</p>
           </article>
+
           <article className="feature">
             <div className="icon-box">👥</div>
             <h3>Referrals</h3>
             <p>Invite members and grow your network.</p>
           </article>
+
           <article className="feature">
             <div className="icon-box">💰</div>
             <h3>Wallet</h3>
@@ -98,17 +121,20 @@ export default function Home() {
             <span className="eyebrow">GETTING STARTED</span>
             <h2>How DollarsPlay Works</h2>
           </div>
+
           <div className="steps">
             <article className="step">
               <span>01</span>
               <h3>Create Your Account</h3>
               <p>Register and complete your profile.</p>
             </article>
+
             <article className="step">
               <span>02</span>
               <h3>Explore the Platform</h3>
               <p>Discover games, tasks and referrals.</p>
             </article>
+
             <article className="step">
               <span>03</span>
               <h3>Track Your Progress</h3>
@@ -123,7 +149,20 @@ export default function Home() {
           <span className="eyebrow">YOUR JOURNEY STARTS HERE</span>
           <h2>Welcome to DollarsPlay</h2>
           <p>A world of games, activities and community awaits.</p>
-          <a href="#features" className="btn">Explore Now</a>
+
+          <a
+            href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/signup/"
+            className="btn"
+          >
+            Create Account
+          </a>
+
+          <p>
+            Already a member?{" "}
+            <a href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/">
+              Login here
+            </a>
+          </p>
         </div>
       </section>
 
@@ -135,4 +174,5 @@ export default function Home() {
       </footer>
     </main>
   );
-            }
+      }
+                           
