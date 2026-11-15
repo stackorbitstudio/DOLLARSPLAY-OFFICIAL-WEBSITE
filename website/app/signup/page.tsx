@@ -39,18 +39,22 @@ export default function SignupPage() {
     }
 
     if (password.length < 6) {
-      setError("Password must contain at least 6 characters.");
+      setError("Please choose a password with at least 6 characters.");
       return;
     }
 
     setLoading(true);
 
     try {
+      const referralCode =
+        new URLSearchParams(window.location.search).get("ref")?.trim() || "";
+
       const user = await registerUser({
         displayName: name.trim(),
         email: email.trim().toLowerCase(),
         password,
         country: selectedCountry,
+        referralCode,
       });
 
       try {
@@ -192,7 +196,7 @@ export default function SignupPage() {
 
         <p className="auth-footer">
           Already have an account?{" "}
-          <span>Login page coming next.</span>
+          <Link href="/login/">Login here.</Link>
         </p>
 
         <Link href="/" className="back-home">
@@ -205,5 +209,4 @@ export default function SignupPage() {
       </p>
     </main>
   );
-    }
-            
+        }
