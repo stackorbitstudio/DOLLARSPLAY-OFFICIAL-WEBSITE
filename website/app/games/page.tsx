@@ -1,13 +1,21 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "../../lib/firebase";
+
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+
 const games = [
   {
     name: "Tap Challenge",
     description: "10 seconds mein jitni baar ho sake tap karo.",
     icon: "👆",
     status: "Available",
-    link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/tap-challenge/",
+    link: "/games/tap-challenge/",
   },
   {
     name: "Coming Soon",
@@ -26,16 +34,68 @@ const games = [
 ];
 
 export default function GamesPage() {
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!active) return;
+
+      if (!user) {
+        setAuthorized(false);
+        window.location.replace(LOGIN_URL);
+        return;
+      }
+
+      if (!user.emailVerified) {
+        setAuthorized(false);
+        await signOut(auth);
+
+        if (active) {
+          window.location.replace(LOGIN_URL);
+        }
+        return;
+      }
+
+      setAuthorized(true);
+      setLoading(false);
+    });
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && !auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      active = false;
+      unsubscribe();
+      window.removeEventListener("pageshow", handlePageShow);
+    };
+  }, []);
+
+  if (loading || !authorized) {
+    return (
+      <main className="min-h-screen bg-[#090611] flex items-center justify-center text-lime-400">
+        Loading Games...
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-5xl mx-auto">
 
-        <a
-          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/dashboard/"
+        <Link
+          href="/dashboard/"
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
-        </a>
+        </Link>
 
         <div className="text-center mt-10 mb-10">
           <h1 className="text-3xl font-extrabold">
@@ -66,12 +126,12 @@ export default function GamesPage() {
               </p>
 
               {game.link ? (
-                <a
+                <Link
                   href={game.link}
                   className="block rounded-xl bg-lime-400 py-3 font-bold text-black"
                 >
                   PLAY NOW
-                </a>
+                </Link>
               ) : (
                 <button
                   disabled
@@ -91,4 +151,5 @@ export default function GamesPage() {
       </div>
     </main>
   );
-    }
+                                           }
+              
