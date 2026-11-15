@@ -19,7 +19,8 @@ export default function DashboardPage() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
-        window.location.href = "/login/";
+        window.location.href =
+          "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
         return;
       }
 
@@ -28,7 +29,8 @@ export default function DashboardPage() {
 
         if (!currentUser.emailVerified) {
           await signOut(auth);
-          window.location.href = "/login/";
+          window.location.href =
+            "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
           return;
         }
 
@@ -74,7 +76,8 @@ export default function DashboardPage() {
 
   async function handleLogout() {
     await signOut(auth);
-    window.location.href = "/login/";
+    window.location.href =
+      "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
   }
 
   if (loading) {
@@ -89,32 +92,32 @@ export default function DashboardPage() {
     {
       icon: "🎮",
       title: "Games",
-      link: "/games/",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/",
     },
     {
       icon: "📋",
       title: "Tasks",
-      link: "/tasks/",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/",
     },
     {
       icon: "👥",
       title: "Referrals",
-      link: "/referrals/",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/",
     },
     {
       icon: "💰",
       title: "Wallet",
-      link: "/wallet/",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/wallet/",
     },
     {
       icon: "📤",
       title: "Withdrawals",
-      link: "/withdrawals/",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/withdrawals/",
     },
     {
       icon: "👤",
       title: "My Profile",
-      link: "/profile/",
+      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/",
     },
   ];
 
@@ -229,5 +232,4 @@ export default function DashboardPage() {
       </div>
     </main>
   );
-      }
-        
+}
