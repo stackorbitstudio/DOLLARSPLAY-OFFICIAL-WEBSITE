@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
@@ -17,7 +18,11 @@ export default function DashboardPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let active = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!active) return;
+
       if (!currentUser) {
         window.location.href =
           "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
@@ -25,16 +30,20 @@ export default function DashboardPage() {
       }
 
       try {
-        await currentUser.reload();
-
         if (!currentUser.emailVerified) {
           await signOut(auth);
-          window.location.href =
-            "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+
+          if (active) {
+            window.location.href =
+              "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+          }
           return;
         }
 
+        if (!active) return;
+
         setUser(currentUser);
+        setDisplayName(currentUser.displayName || "Player");
 
         const userRef = doc(db, "users", currentUser.uid);
         const walletRef = doc(db, "wallets", currentUser.uid);
@@ -44,34 +53,44 @@ export default function DashboardPage() {
           getDoc(walletRef),
         ]);
 
+        if (!active) return;
+
         if (userSnap.exists()) {
           const profile = userSnap.data();
+
           setDisplayName(
             profile.displayName || currentUser.displayName || "Player"
           );
           setPhotoURL(profile.photoURL || "");
-        } else {
-          setDisplayName(currentUser.displayName || "Player");
         }
 
         if (walletSnap.exists()) {
           const wallet = walletSnap.data();
+
           setCoinBalance(Number(wallet.coinBalance || 0));
           setTotalEarned(Number(wallet.totalEarned || 0));
           setTotalWithdrawn(Number(wallet.totalWithdrawn || 0));
         }
+
       } catch (err) {
         console.error("DASHBOARD ERROR:", err);
-        setError(
-          "Dashboard data could not be loaded. Please check your connection or Firebase permissions."
-        );
-        setDisplayName(currentUser.displayName || "Player");
+
+        if (active) {
+          setError(
+            "Dashboard data could not be loaded. Please check your connection or Firebase permissions."
+          );
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   async function handleLogout() {
@@ -92,32 +111,32 @@ export default function DashboardPage() {
     {
       icon: "🎮",
       title: "Games",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/games/",
+      link: "/games/",
     },
     {
       icon: "📋",
       title: "Tasks",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/tasks/",
+      link: "/tasks/",
     },
     {
       icon: "👥",
       title: "Referrals",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/referrals/",
+      link: "/referrals/",
     },
     {
       icon: "💰",
       title: "Wallet",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/wallet/",
+      link: "/wallet/",
     },
     {
       icon: "📤",
       title: "Withdrawals",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/withdrawals/",
+      link: "/withdrawals/",
     },
     {
       icon: "👤",
       title: "My Profile",
-      link: "/DOLLARSPLAY-OFFICIAL-WEBSITE-/profile/",
+      link: "/profile/",
     },
   ];
 
@@ -132,6 +151,7 @@ export default function DashboardPage() {
               alt="DollarsPlay"
               className="w-12 h-12 object-contain"
             />
+
             <h1 className="text-xl sm:text-2xl font-extrabold">
               DOLLARS<span className="text-lime-400">PLAY</span>
             </h1>
@@ -161,9 +181,11 @@ export default function DashboardPage() {
 
             <div className="min-w-0">
               <p className="text-gray-400 text-sm">Welcome back,</p>
+
               <h2 className="text-2xl font-bold truncate">
                 {displayName}
               </h2>
+
               <p className="text-xs text-lime-400 mt-1">
                 Verified Account
               </p>
@@ -178,10 +200,14 @@ export default function DashboardPage() {
         )}
 
         <section className="rounded-3xl border border-lime-400/40 bg-[#151326] p-6 mb-6">
-          <p className="text-gray-400 text-sm">Your Coin Balance</p>
+          <p className="text-gray-400 text-sm">
+            Your Coin Balance
+          </p>
+
           <h2 className="text-4xl font-extrabold text-lime-400 mt-2">
             {coinBalance.toLocaleString()}
           </h2>
+
           <p className="text-gray-400 text-sm mt-1">
             DollarsPlay Coins
           </p>
@@ -189,18 +215,26 @@ export default function DashboardPage() {
 
         <section className="grid grid-cols-2 gap-4 mb-8">
           <div className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-4">
-            <p className="text-gray-400 text-sm">Total Earned</p>
+            <p className="text-gray-400 text-sm">
+              Total Earned
+            </p>
+
             <p className="text-2xl font-bold text-lime-400 mt-2">
               {totalEarned.toLocaleString()}
             </p>
+
             <p className="text-xs text-gray-500">Coins</p>
           </div>
 
           <div className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-4">
-            <p className="text-gray-400 text-sm">Total Withdrawn</p>
+            <p className="text-gray-400 text-sm">
+              Total Withdrawn
+            </p>
+
             <p className="text-2xl font-bold text-white mt-2">
               {totalWithdrawn.toLocaleString()}
             </p>
+
             <p className="text-xs text-gray-500">Coins</p>
           </div>
         </section>
@@ -211,17 +245,23 @@ export default function DashboardPage() {
 
         <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {activities.map((item) => (
-            <a
+            <Link
               key={item.title}
               href={item.link}
               className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
             >
-              <div className="text-3xl mb-3">{item.icon}</div>
-              <h3 className="font-bold">{item.title}</h3>
+              <div className="text-3xl mb-3">
+                {item.icon}
+              </div>
+
+              <h3 className="font-bold">
+                {item.title}
+              </h3>
+
               <p className="text-xs text-gray-500 mt-2">
                 Open
               </p>
-            </a>
+            </Link>
           ))}
         </section>
 
@@ -232,4 +272,5 @@ export default function DashboardPage() {
       </div>
     </main>
   );
-}
+          }
+    
