@@ -2,8 +2,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { auth, db, storage } from "../../lib/firebase";
-import { onAuthStateChanged, updateProfile } from "firebase/auth";
+import { onAuthStateChanged, signOut, updateProfile, type User } from "firebase/auth";
 import {
   doc,
   getDoc,
@@ -15,8 +16,11 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+
 export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [country, setCountry] = useState("");
@@ -28,10 +32,23 @@ export default function ProfilePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let active = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!active) return;
+
       if (!currentUser) {
-        window.location.href =
-          "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+        setUser(null);
+        window.location.replace(LOGIN_URL);
+        return;
+      }
+
+      if (!currentUser.emailVerified) {
+        await signOut(auth);
+
+        if (active) {
+          window.location.replace(LOGIN_URL);
+        }
         return;
       }
 
@@ -44,21 +61,42 @@ export default function ProfilePage() {
         const profileRef = doc(db, "users", currentUser.uid);
         const profileSnap = await getDoc(profileRef);
 
+        if (!active) return;
+
         if (profileSnap.exists()) {
           const data = profileSnap.data();
+
           setName(data.displayName || currentUser.displayName || "");
           setPhotoURL(data.photoURL || currentUser.photoURL || "");
           setCountry(data.country?.name || "");
           setAccountStatus(data.accountStatus || "active");
         }
-      } catch {
-        setError("Profile information could not be loaded.");
+      } catch (err) {
+        console.error("PROFILE ERROR:", err);
+
+        if (active) {
+          setError("Profile information could not be loaded.");
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     });
 
-    return () => unsubscribe();
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && !auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      active = false;
+      unsubscribe();
+      window.removeEventListener("pageshow", handlePageShow);
+    };
   }, []);
 
   async function saveName() {
@@ -79,7 +117,8 @@ export default function ProfilePage() {
       });
 
       setMessage("Your display name has been updated.");
-    } catch {
+    } catch (err) {
+      console.error("PROFILE NAME ERROR:", err);
       setError("Name could not be updated. Please try again.");
     } finally {
       setSaving(false);
@@ -123,7 +162,9 @@ export default function ProfilePage() {
 
       setPhotoURL(downloadURL);
       setMessage("Profile picture updated successfully.");
-    } catch {
+    } catch (err) {
+      console.error("PROFILE PHOTO ERROR:", err);
+
       setError(
         "Photo upload failed. Firebase Storage permissions may need configuration."
       );
@@ -133,7 +174,7 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading) {
+  if (loading || !user) {
     return (
       <main className="min-h-screen bg-[#090611] flex items-center justify-center text-lime-400">
         Loading Profile...
@@ -145,12 +186,12 @@ export default function ProfilePage() {
     <main className="min-h-screen bg-[#090611] text-white px-4 py-8">
       <div className="max-w-xl mx-auto">
 
-        <a
-          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/dashboard/"
+        <Link
+          href="/dashboard/"
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
-        </a>
+        </Link>
 
         <h1 className="text-3xl font-extrabold mt-6 mb-2">
           My <span className="text-lime-400">Profile</span>
@@ -201,7 +242,7 @@ export default function ProfilePage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full h-14 rounded-xl bg-[#0c0716] border border-purple-700/50 px-4 text-white text-base outline-none focus:border-lime-400"
-style={{ color: "#ffffff", caretColor: "#a3e635", fontSize: "16px", backgroundColor: "#0c0716" }}
+                style={{ color: "#ffffff", caretColor: "#a3e635", fontSize: "16px", backgroundColor: "#0c0716" }}
               />
             </div>
 
@@ -221,7 +262,7 @@ style={{ color: "#ffffff", caretColor: "#a3e635", fontSize: "16px", backgroundCo
                 value={email}
                 readOnly
                 className="w-full h-14 rounded-xl bg-[#0c0716] border border-purple-700/50 px-4 text-white text-base"
-style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
+                style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
               />
             </div>
 
@@ -233,7 +274,7 @@ style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
                 value={country || "Not available"}
                 readOnly
                 className="w-full h-14 rounded-xl bg-[#0c0716] border border-purple-700/50 px-4 text-white text-base"
-style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
+                style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
               />
             </div>
 
@@ -265,4 +306,5 @@ style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
       </div>
     </main>
   );
-}
+    }
+      
