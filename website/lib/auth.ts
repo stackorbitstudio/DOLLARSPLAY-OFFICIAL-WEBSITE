@@ -23,6 +23,7 @@ interface RegisterInput {
   email: string;
   password: string;
   country: Country;
+  referralCode?: string;
 }
 
 // Create a new user account and wallet.
@@ -42,6 +43,8 @@ export async function registerUser(data: RegisterInput) {
 
     const batch = writeBatch(db);
 
+    const referralCode = data.referralCode?.trim() || "";
+
     batch.set(doc(db, "users", user.uid), {
       uid: user.uid,
       displayName: data.displayName.trim(),
@@ -50,6 +53,16 @@ export async function registerUser(data: RegisterInput) {
       country: data.country,
       createdAt: serverTimestamp(),
       accountStatus: "active",
+
+      referredBy:
+        referralCode && referralCode !== user.uid
+          ? referralCode
+          : null,
+
+      referralAt:
+        referralCode && referralCode !== user.uid
+          ? serverTimestamp()
+          : null,
     });
 
     batch.set(doc(db, "wallets", user.uid), {
@@ -94,4 +107,5 @@ export async function loginUser(
 // User logout.
 export async function logoutUser() {
   return signOut(auth);
-}
+  }
+      
