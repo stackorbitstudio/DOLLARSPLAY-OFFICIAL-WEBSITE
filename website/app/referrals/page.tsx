@@ -2,8 +2,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import Link from "next/link";
+import {
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
 import { auth } from "../../lib/firebase";
+
+const LOGIN_URL =
+  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
 
 export default function ReferralsPage() {
   const [referralCode, setReferralCode] = useState("");
@@ -12,10 +19,15 @@ export default function ReferralsPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        window.location.href =
-          "/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+        window.location.replace(LOGIN_URL);
+        return;
+      }
+
+      if (!user.emailVerified) {
+        await signOut(auth);
+        window.location.replace(LOGIN_URL);
         return;
       }
 
@@ -29,7 +41,18 @@ export default function ReferralsPage() {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && !auth.currentUser) {
+        window.location.replace(LOGIN_URL);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener("pageshow", handlePageShow);
+    };
   }, []);
 
   async function copyText(text: string) {
@@ -52,13 +75,12 @@ export default function ReferralsPage() {
   return (
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-2xl mx-auto">
-
-        <a
-          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/dashboard/"
+        <Link
+          href="/dashboard/"
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
-        </a>
+        </Link>
 
         <div className="text-center mt-10 mb-10">
           <div className="text-5xl mb-4">👥</div>
@@ -73,7 +95,6 @@ export default function ReferralsPage() {
         </div>
 
         <section className="rounded-3xl border border-purple-700/40 bg-[#160e27] p-6">
-
           <h2 className="text-xl font-bold mb-3">
             Your Referral Code
           </h2>
@@ -132,7 +153,6 @@ export default function ReferralsPage() {
               {message}
             </p>
           )}
-
         </section>
 
         <section className="rounded-2xl border border-purple-700/40 bg-[#160e27] p-5 mt-6">
@@ -143,8 +163,8 @@ export default function ReferralsPage() {
             Referral tracking and coin rewards will be activated after secure signup integration.
           </p>
         </section>
-
       </div>
     </main>
   );
-}
+                                           }
+          
