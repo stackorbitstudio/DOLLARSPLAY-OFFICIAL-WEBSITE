@@ -135,7 +135,7 @@ export default function WalletPage() {
         )}
 
         <Link
-          href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/dashboard/"
+          href="/dashboard/"
           className="back-home"
         >
           ← Back to Dashboard
