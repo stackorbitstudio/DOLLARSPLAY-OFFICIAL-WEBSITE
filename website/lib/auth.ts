@@ -26,6 +26,15 @@ interface RegisterInput {
   referralCode?: string;
 }
 
+// Detect the user's device time zone.
+function getUserTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
 // Create a new user account and wallet.
 export async function registerUser(data: RegisterInput) {
   const credential = await createUserWithEmailAndPassword(
@@ -42,7 +51,6 @@ export async function registerUser(data: RegisterInput) {
     });
 
     const batch = writeBatch(db);
-
     const referralCode = data.referralCode?.trim() || "";
 
     batch.set(doc(db, "users", user.uid), {
@@ -51,6 +59,7 @@ export async function registerUser(data: RegisterInput) {
       email: data.email.trim().toLowerCase(),
       photoURL: "",
       country: data.country,
+      timeZone: getUserTimeZone(),
       createdAt: serverTimestamp(),
       accountStatus: "active",
 
@@ -108,4 +117,4 @@ export async function loginUser(
 export async function logoutUser() {
   return signOut(auth);
   }
-      
+  
