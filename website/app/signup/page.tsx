@@ -10,6 +10,8 @@ import {
   sendVerificationEmail,
 } from "../../lib/auth";
 
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
+
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -39,7 +41,7 @@ export default function SignupPage() {
     }
 
     if (password.length < 6) {
-      setError("Please choose a password with at least 6 characters.");
+      setError("Password must contain at least 6 characters.");
       return;
     }
 
@@ -47,7 +49,9 @@ export default function SignupPage() {
 
     try {
       const referralCode =
-        new URLSearchParams(window.location.search).get("ref")?.trim() || "";
+        new URLSearchParams(window.location.search)
+          .get("ref")
+          ?.trim() || "";
 
       const user = await registerUser({
         displayName: name.trim(),
@@ -62,10 +66,9 @@ export default function SignupPage() {
         setSuccess(
           "Account created successfully! Please check your email and verify your account."
         );
-      } catch (emailError) {
-        console.error("VERIFICATION EMAIL ERROR:", emailError);
+      } catch {
         setSuccess(
-          "Your account was created, but the verification email could not be sent. Please try again later."
+          "Your account was created, but the verification email could not be sent. Please contact support."
         );
       }
 
@@ -73,15 +76,8 @@ export default function SignupPage() {
       setEmail("");
       setPassword("");
     } catch (err: unknown) {
-      console.error("DOLLARSPLAY SIGNUP ERROR:", err);
-
-      const firebaseError = err as {
-        code?: string;
-        message?: string;
-      };
-
-      const code = firebaseError.code || "unknown";
-      const message = firebaseError.message || "No message available";
+      const code =
+        (err as { code?: string })?.code || "unknown";
 
       if (code === "auth/email-already-in-use") {
         setError("This email is already registered.");
@@ -91,15 +87,14 @@ export default function SignupPage() {
         setError("Please choose a stronger password.");
       } else if (
         code.includes("permission-denied") ||
-        message.toLowerCase().includes("permission")
+        code.includes("permission")
       ) {
         setError(
-          "Firebase Database Permission Error. Please share this error code: " +
-            code
+          "Registration could not be completed due to a database permission issue."
         );
       } else {
         setError(
-          "Registration Error: " + code + " | " + message
+          "Registration failed. Please check your details and try again."
         );
       }
     } finally {
@@ -109,9 +104,9 @@ export default function SignupPage() {
 
   return (
     <main className="auth-page">
-      <Link href="/" className="auth-brand">
+      <Link href={`${BASE}/`} className="auth-brand">
         <img
-          src="/DOLLARSPLAY-OFFICIAL-WEBSITE-/logo.png"
+          src={`${BASE}/logo.png`}
           alt="DollarsPlay"
         />
         <span>DOLLARSPLAY</span>
@@ -179,7 +174,10 @@ export default function SignupPage() {
             required
           >
             {countries.map((country) => (
-              <option key={country.code} value={country.code}>
+              <option
+                key={country.code}
+                value={country.code}
+              >
                 {country.name} ({country.currencyCode})
               </option>
             ))}
@@ -196,10 +194,10 @@ export default function SignupPage() {
 
         <p className="auth-footer">
           Already have an account?{" "}
-          <Link href="/login/">Login here.</Link>
+          <Link href={`${BASE}/login/`}>Login here.</Link>
         </p>
 
-        <Link href="/" className="back-home">
+        <Link href={`${BASE}/`} className="back-home">
           ← Back to Home
         </Link>
       </section>
@@ -209,4 +207,5 @@ export default function SignupPage() {
       </p>
     </main>
   );
-        }
+    }
+        
