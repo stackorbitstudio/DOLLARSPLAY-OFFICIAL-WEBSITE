@@ -7,11 +7,7 @@ import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 
-const HOME_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/";
-
-const LOGIN_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -30,17 +26,11 @@ export default function DashboardPage() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!active) return;
 
-      if (!currentUser) {
-        setUser(null);
-        window.location.replace(LOGIN_URL);
-        return;
-      }
-
-      if (!currentUser.emailVerified) {
-        await signOut(auth);
+      if (!currentUser || !currentUser.emailVerified) {
+        if (currentUser) await signOut(auth);
 
         if (active) {
-          window.location.replace(LOGIN_URL);
+          window.location.replace(`${BASE}/login/`);
         }
         return;
       }
@@ -49,21 +39,18 @@ export default function DashboardPage() {
       setDisplayName(currentUser.displayName || "Player");
       setLoading(false);
       setDataLoading(true);
+      setError("");
 
       try {
-        const userRef = doc(db, "users", currentUser.uid);
-        const walletRef = doc(db, "wallets", currentUser.uid);
-
         const [userSnap, walletSnap] = await Promise.all([
-          getDoc(userRef),
-          getDoc(walletRef),
+          getDoc(doc(db, "users", currentUser.uid)),
+          getDoc(doc(db, "wallets", currentUser.uid)),
         ]);
 
         if (!active) return;
 
         if (userSnap.exists()) {
           const profile = userSnap.data();
-
           setDisplayName(
             profile.displayName || currentUser.displayName || "Player"
           );
@@ -76,6 +63,10 @@ export default function DashboardPage() {
           setCoinBalance(Number(wallet.coinBalance || 0));
           setTotalEarned(Number(wallet.totalEarned || 0));
           setTotalWithdrawn(Number(wallet.totalWithdrawn || 0));
+        } else {
+          setCoinBalance(0);
+          setTotalEarned(0);
+          setTotalWithdrawn(0);
         }
       } catch (err) {
         console.error("DASHBOARD ERROR:", err);
@@ -86,16 +77,15 @@ export default function DashboardPage() {
           );
         }
       } finally {
-        if (active) {
-          setDataLoading(false);
-        }
+        if (active) setDataLoading(false);
       }
     });
 
-    // Browser Back / cached page par dobara authentication check
     const checkAuthentication = () => {
-      if (!auth.currentUser) {
-        window.location.replace(LOGIN_URL);
+      const currentUser = auth.currentUser;
+
+      if (!currentUser || !currentUser.emailVerified) {
+        window.location.replace(`${BASE}/login/`);
       }
     };
 
@@ -112,7 +102,7 @@ export default function DashboardPage() {
     try {
       await signOut(auth);
       setUser(null);
-      window.location.replace(HOME_URL);
+      window.location.replace(`${BASE}/`);
     } catch (err) {
       console.error("LOGOUT ERROR:", err);
       setError("Logout failed. Please try again.");
@@ -123,7 +113,7 @@ export default function DashboardPage() {
     { icon: "🎮", title: "Games", link: "/games/" },
     { icon: "📋", title: "Tasks", link: "/tasks/" },
     { icon: "👥", title: "Referrals", link: "/referrals/" },
-    { icon: "💰", title: "Wallet", link: "/wallet/" },
+    { icon: "💰", title: "Wallet", link: "/wallets/" },
     { icon: "📤", title: "Withdrawals", link: "/withdrawals/" },
     { icon: "👤", title: "My Profile", link: "/profile/" },
   ];
@@ -141,11 +131,10 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen bg-[#090611] text-white px-4 py-6">
       <div className="max-w-5xl mx-auto">
-
         <header className="flex items-center justify-between gap-3 mb-8">
           <div className="flex items-center gap-3">
             <img
-              src="/DOLLARSPLAY-OFFICIAL-WEBSITE-/logo.png"
+              src={`${BASE}/logo.png`}
               alt="DollarsPlay"
               className="w-12 h-12 object-contain"
             />
@@ -227,9 +216,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <h2 className="text-xl font-bold mb-4">
-          Your Activities
-        </h2>
+        <h2 className="text-xl font-bold mb-4">Your Activities</h2>
 
         <section className="grid grid-cols-2 sm:grid-cols-3 gap-4">
           {activities.map((item) => (
@@ -248,9 +235,8 @@ export default function DashboardPage() {
         <footer className="text-center text-xs text-gray-600 mt-10 pb-4">
           © DOLLARSPLAY. All rights reserved.
         </footer>
-
       </div>
     </main>
   );
-    }
-          
+                     }
+     
