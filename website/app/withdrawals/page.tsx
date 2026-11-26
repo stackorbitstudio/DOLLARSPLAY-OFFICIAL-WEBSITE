@@ -308,5 +308,4 @@ export default function WithdrawalsPage() {
       `}</style>
     </main>
   );
-        }
-        
+}
