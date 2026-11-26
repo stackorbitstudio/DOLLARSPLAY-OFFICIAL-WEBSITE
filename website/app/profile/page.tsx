@@ -3,8 +3,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { auth, db, storage } from "../../lib/firebase";
-import { onAuthStateChanged, signOut, updateProfile, type User } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut,
+  updateProfile,
+  type User,
+} from "firebase/auth";
 import {
   doc,
   getDoc,
@@ -15,9 +19,9 @@ import {
   uploadBytes,
   getDownloadURL,
 } from "firebase/storage";
+import { auth, db, storage } from "../../lib/firebase";
 
-const LOGIN_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -37,17 +41,11 @@ export default function ProfilePage() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!active) return;
 
-      if (!currentUser) {
-        setUser(null);
-        window.location.replace(LOGIN_URL);
-        return;
-      }
-
-      if (!currentUser.emailVerified) {
-        await signOut(auth);
+      if (!currentUser || !currentUser.emailVerified) {
+        if (currentUser) await signOut(auth);
 
         if (active) {
-          window.location.replace(LOGIN_URL);
+          window.location.replace(`${BASE}/login/`);
         }
         return;
       }
@@ -58,8 +56,9 @@ export default function ProfilePage() {
       setPhotoURL(currentUser.photoURL || "");
 
       try {
-        const profileRef = doc(db, "users", currentUser.uid);
-        const profileSnap = await getDoc(profileRef);
+        const profileSnap = await getDoc(
+          doc(db, "users", currentUser.uid)
+        );
 
         if (!active) return;
 
@@ -78,30 +77,34 @@ export default function ProfilePage() {
           setError("Profile information could not be loaded.");
         }
       } finally {
-        if (active) {
-          setLoading(false);
-        }
+        if (active) setLoading(false);
       }
     });
 
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted && !auth.currentUser) {
-        window.location.replace(LOGIN_URL);
+    const checkAuthentication = () => {
+      const currentUser = auth.currentUser;
+
+      if (!currentUser || !currentUser.emailVerified) {
+        window.location.replace(`${BASE}/login/`);
       }
     };
 
-    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("pageshow", checkAuthentication);
 
     return () => {
       active = false;
       unsubscribe();
-      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("pageshow", checkAuthentication);
     };
   }, []);
 
   async function saveName() {
-    if (!user || !name.trim()) {
-      setError("Please enter your name.");
+    if (!user) return;
+
+    const trimmedName = name.trim();
+
+    if (trimmedName.length < 2 || trimmedName.length > 50) {
+      setError("Name must contain 2 to 50 characters.");
       return;
     }
 
@@ -110,16 +113,21 @@ export default function ProfilePage() {
     setMessage("");
 
     try {
-      await updateProfile(user, { displayName: name.trim() });
-
       await updateDoc(doc(db, "users", user.uid), {
-        displayName: name.trim(),
+        displayName: trimmedName,
       });
 
+      await updateProfile(user, {
+        displayName: trimmedName,
+      });
+
+      setName(trimmedName);
       setMessage("Your display name has been updated.");
     } catch (err) {
       console.error("PROFILE NAME ERROR:", err);
-      setError("Name could not be updated. Please try again.");
+      setError(
+        "Name could not be updated. Please try again."
+      );
     } finally {
       setSaving(false);
     }
@@ -129,15 +137,18 @@ export default function ProfilePage() {
     event: React.ChangeEvent<HTMLInputElement>
   ) {
     const file = event.target.files?.[0];
+
     if (!file || !user) return;
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please select an image.");
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      setError("Please select a JPG, PNG or WEBP image.");
+      event.target.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
       setError("Image must be smaller than 5 MB.");
+      event.target.value = "";
       return;
     }
 
@@ -151,14 +162,19 @@ export default function ProfilePage() {
         `profilePictures/${user.uid}/profile.jpg`
       );
 
-      await uploadBytes(photoRef, file);
+      await uploadBytes(photoRef, file, {
+        contentType: file.type,
+      });
+
       const downloadURL = await getDownloadURL(photoRef);
 
       await updateDoc(doc(db, "users", user.uid), {
         photoURL: downloadURL,
       });
 
-      await updateProfile(user, { photoURL: downloadURL });
+      await updateProfile(user, {
+        photoURL: downloadURL,
+      });
 
       setPhotoURL(downloadURL);
       setMessage("Profile picture updated successfully.");
@@ -166,7 +182,7 @@ export default function ProfilePage() {
       console.error("PROFILE PHOTO ERROR:", err);
 
       setError(
-        "Photo upload failed. Firebase Storage permissions may need configuration."
+        "Photo upload or profile update failed. Please try again."
       );
     } finally {
       setSaving(false);
@@ -185,9 +201,8 @@ export default function ProfilePage() {
   return (
     <main className="min-h-screen bg-[#090611] text-white px-4 py-8">
       <div className="max-w-xl mx-auto">
-
         <Link
-          href="/dashboard/"
+          href={`${BASE}/dashboard/`}
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
@@ -202,7 +217,6 @@ export default function ProfilePage() {
         </p>
 
         <section className="rounded-3xl border border-purple-700/40 bg-[#160e27] p-6">
-
           <div className="flex flex-col items-center mb-8">
             {photoURL ? (
               <img
@@ -220,7 +234,7 @@ export default function ProfilePage() {
               Change Profile Picture
               <input
                 type="file"
-                accept="image/*"
+                accept="image/jpeg,image/png,image/webp"
                 className="hidden"
                 onChange={uploadPhoto}
                 disabled={saving}
@@ -228,12 +242,11 @@ export default function ProfilePage() {
             </label>
 
             <p className="text-xs text-gray-500 mt-2">
-              Maximum image size: 5 MB
+              JPG, PNG or WEBP. Maximum 5 MB.
             </p>
           </div>
 
           <div className="space-y-5">
-
             <div>
               <label className="block text-sm text-gray-300 mb-2">
                 Display Name
@@ -241,8 +254,8 @@ export default function ProfilePage() {
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                maxLength={50}
                 className="w-full h-14 rounded-xl bg-[#0c0716] border border-purple-700/50 px-4 text-white text-base outline-none focus:border-lime-400"
-                style={{ color: "#ffffff", caretColor: "#a3e635", fontSize: "16px", backgroundColor: "#0c0716" }}
               />
             </div>
 
@@ -262,7 +275,6 @@ export default function ProfilePage() {
                 value={email}
                 readOnly
                 className="w-full h-14 rounded-xl bg-[#0c0716] border border-purple-700/50 px-4 text-white text-base"
-                style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
               />
             </div>
 
@@ -274,7 +286,6 @@ export default function ProfilePage() {
                 value={country || "Not available"}
                 readOnly
                 className="w-full h-14 rounded-xl bg-[#0c0716] border border-purple-700/50 px-4 text-white text-base"
-                style={{ color: "#ffffff", fontSize: "16px", backgroundColor: "#0c0716" }}
               />
             </div>
 
@@ -287,7 +298,6 @@ export default function ProfilePage() {
                 Email: Verified
               </p>
             </div>
-
           </div>
 
           {message && (
@@ -301,10 +311,8 @@ export default function ProfilePage() {
               {error}
             </p>
           )}
-
         </section>
       </div>
     </main>
   );
-    }
-      
+}
