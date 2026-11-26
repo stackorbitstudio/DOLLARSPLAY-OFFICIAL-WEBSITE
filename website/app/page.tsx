@@ -1,11 +1,13 @@
 
 export default function Home() {
+  const base = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
+
   return (
     <main>
       <header className="wrap nav">
-        <a href="#" className="brand">
+        <a href={`${base}/`} className="brand">
           <img
-            src="/DOLLARSPLAY-OFFICIAL-WEBSITE-/logo.png"
+            src={`${base}/logo.png`}
             alt="DollarsPlay Logo"
             width="48"
             height="48"
@@ -14,15 +16,10 @@ export default function Home() {
         </a>
 
         <nav>
-          <a href="#features">Features</a>{" "}
-          <a href="#how">How It Works</a>{" "}
-          <a href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/">
-            Login
-          </a>{" "}
-          <a
-            href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/signup/"
-            className="btn"
-          >
+          <a href="#features">Features</a>
+          <a href="#how">How It Works</a>
+          <a href={`${base}/login/`}>Login</a>
+          <a href={`${base}/signup/`} className="btn">
             Create Account
           </a>
         </nav>
@@ -30,16 +27,12 @@ export default function Home() {
 
       <section className="wrap hero">
         <div>
-          <span className="eyebrow">
-            WELCOME TO DOLLARSPLAY
-          </span>
-
+          <span className="eyebrow">WELCOME TO DOLLARSPLAY</span>
           <h1>
             PLAY MORE.
             <br />
             <span>ACHIEVE MORE.</span>
           </h1>
-
           <p className="lead">
             Explore exciting games, complete tasks,
             build your referral network and discover
@@ -47,17 +40,10 @@ export default function Home() {
           </p>
 
           <div className="hero-buttons">
-            <a
-              href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/signup/"
-              className="btn"
-            >
+            <a href={`${base}/signup/`} className="btn">
               Create Account
             </a>
-
-            <a
-              href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/"
-              className="btn btn-ghost"
-            >
+            <a href={`${base}/login/`} className="btn btn-ghost">
               Login
             </a>
           </div>
@@ -65,7 +51,7 @@ export default function Home() {
 
         <div className="hero-art">
           <img
-            src="/DOLLARSPLAY-OFFICIAL-WEBSITE-/logo.png"
+            src={`${base}/logo.png`}
             alt="Official DollarsPlay Logo"
             width="280"
             height="280"
@@ -89,29 +75,29 @@ export default function Home() {
         </div>
 
         <div className="feature-grid">
-          <article className="feature">
+          <a href={`${base}/games/`} className="feature">
             <div className="icon-box">🎮</div>
             <h3>Games</h3>
             <p>Explore entertaining games and challenges.</p>
-          </article>
+          </a>
 
-          <article className="feature">
+          <a href={`${base}/tasks/`} className="feature">
             <div className="icon-box">🎯</div>
             <h3>Tasks</h3>
             <p>Complete activities and track progress.</p>
-          </article>
+          </a>
 
-          <article className="feature">
+          <a href={`${base}/referrals/`} className="feature">
             <div className="icon-box">👥</div>
             <h3>Referrals</h3>
             <p>Invite members and grow your network.</p>
-          </article>
+          </a>
 
-          <article className="feature">
+          <a href={`${base}/wallets/`} className="feature">
             <div className="icon-box">💰</div>
             <h3>Wallet</h3>
             <p>Manage your platform rewards.</p>
-          </article>
+          </a>
         </div>
       </section>
 
@@ -128,13 +114,11 @@ export default function Home() {
               <h3>Create Your Account</h3>
               <p>Register and complete your profile.</p>
             </article>
-
             <article className="step">
               <span>02</span>
               <h3>Explore the Platform</h3>
               <p>Discover games, tasks and referrals.</p>
             </article>
-
             <article className="step">
               <span>03</span>
               <h3>Track Your Progress</h3>
@@ -150,18 +134,13 @@ export default function Home() {
           <h2>Welcome to DollarsPlay</h2>
           <p>A world of games, activities and community awaits.</p>
 
-          <a
-            href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/signup/"
-            className="btn"
-          >
+          <a href={`${base}/signup/`} className="btn">
             Create Account
           </a>
 
           <p>
             Already a member?{" "}
-            <a href="/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/">
-              Login here
-            </a>
+            <a href={`${base}/login/`}>Login here</a>
           </p>
         </div>
       </section>
@@ -174,5 +153,5 @@ export default function Home() {
       </footer>
     </main>
   );
-      }
-                           
+            }
+          
