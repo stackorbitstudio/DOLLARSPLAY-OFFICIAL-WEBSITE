@@ -28,10 +28,7 @@ export default function DashboardPage() {
 
       if (!currentUser || !currentUser.emailVerified) {
         if (currentUser) await signOut(auth);
-
-        if (active) {
-          window.location.replace(`${BASE}/login/`);
-        }
+        if (active) window.location.replace(`${BASE}/login/`);
         return;
       }
 
@@ -51,15 +48,12 @@ export default function DashboardPage() {
 
         if (userSnap.exists()) {
           const profile = userSnap.data();
-          setDisplayName(
-            profile.displayName || currentUser.displayName || "Player"
-          );
+          setDisplayName(profile.displayName || currentUser.displayName || "Player");
           setPhotoURL(profile.photoURL || "");
         }
 
         if (walletSnap.exists()) {
           const wallet = walletSnap.data();
-
           setCoinBalance(Number(wallet.coinBalance || 0));
           setTotalEarned(Number(wallet.totalEarned || 0));
           setTotalWithdrawn(Number(wallet.totalWithdrawn || 0));
@@ -70,11 +64,8 @@ export default function DashboardPage() {
         }
       } catch (err) {
         console.error("DASHBOARD ERROR:", err);
-
         if (active) {
-          setError(
-            "Dashboard data could not be loaded. Please check your connection or Firebase permissions."
-          );
+          setError("Dashboard data could not be loaded. Please check your connection or Firebase permissions.");
         }
       } finally {
         if (active) setDataLoading(false);
@@ -83,7 +74,6 @@ export default function DashboardPage() {
 
     const checkAuthentication = () => {
       const currentUser = auth.currentUser;
-
       if (!currentUser || !currentUser.emailVerified) {
         window.location.replace(`${BASE}/login/`);
       }
@@ -113,17 +103,22 @@ export default function DashboardPage() {
     { icon: "🎮", title: "Games", link: "/games/" },
     { icon: "📋", title: "Tasks", link: "/tasks/" },
     { icon: "👥", title: "Referrals", link: "/referrals/" },
-    { icon: "💰", title: "Wallet", link: "/wallets/" },
+    { icon: "💰", title: "Wallet", link: "/wallet/" },
     { icon: "📤", title: "Withdrawals", link: "/withdrawals/" },
     { icon: "👤", title: "My Profile", link: "/profile/" },
+    { icon: "💬", title: "Community Chat", link: "/chat/" },
+    { icon: "👉", title: "Referral Poke", link: "/poke/" },
+    { icon: "🔔", title: "Notifications", link: "/notifications/" },
+    { icon: "⚙️", title: "Settings", link: "/settings/" },
+    { icon: "📜", title: "Transactions", link: "/transactions/" },
+    { icon: "🌍", title: "Currency Settings", link: "/currency-settings/" },
+    { icon: "🏆", title: "Leaderboard", link: "/leaderboard/" },
   ];
 
   if (loading || !user) {
     return (
       <main className="min-h-screen bg-[#090611] flex items-center justify-center text-white">
-        <p className="text-lime-400 font-semibold">
-          Loading DOLLARSPLAY...
-        </p>
+        <p className="text-lime-400 font-semibold">Loading DOLLARSPLAY...</p>
       </main>
     );
   }
@@ -167,12 +162,8 @@ export default function DashboardPage() {
 
             <div className="min-w-0">
               <p className="text-gray-400 text-sm">Welcome back,</p>
-              <h2 className="text-2xl font-bold truncate">
-                {displayName}
-              </h2>
-              <p className="text-xs text-lime-400 mt-1">
-                Verified Account
-              </p>
+              <h2 className="text-2xl font-bold truncate">{displayName}</h2>
+              <p className="text-xs text-lime-400 mt-1">Verified Account</p>
             </div>
           </div>
         </section>
@@ -188,13 +179,9 @@ export default function DashboardPage() {
           <h2 className="text-4xl font-extrabold text-lime-400 mt-2">
             {coinBalance.toLocaleString()}
           </h2>
-          <p className="text-gray-400 text-sm mt-1">
-            DollarsPlay Coins
-          </p>
+          <p className="text-gray-400 text-sm mt-1">DollarsPlay Coins</p>
           {dataLoading && (
-            <p className="text-xs text-gray-500 mt-2">
-              Updating balance...
-            </p>
+            <p className="text-xs text-gray-500 mt-2">Updating balance...</p>
           )}
         </section>
 
@@ -222,8 +209,8 @@ export default function DashboardPage() {
           {activities.map((item) => (
             <Link
               key={item.title}
-              href={item.link}
-              className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center"
+              href={`${BASE}${item.link}`}
+              className="rounded-2xl border border-lime-400/50 bg-[#160e27] p-5 text-center hover:bg-purple-950/50 transition"
             >
               <div className="text-3xl mb-3">{item.icon}</div>
               <h3 className="font-bold">{item.title}</h3>
@@ -238,5 +225,5 @@ export default function DashboardPage() {
       </div>
     </main>
   );
-                     }
-     
+      }
+      
