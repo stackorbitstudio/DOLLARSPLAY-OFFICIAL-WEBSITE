@@ -6,16 +6,15 @@ import Link from "next/link";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 
-const LOGIN_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
 
 const games = [
   {
     name: "Tap Challenge",
-    description: "10 seconds mein jitni baar ho sake tap karo.",
+    description: "Tap as many times as you can in 10 seconds.",
     icon: "👆",
     status: "Available",
-    link: "/games/tap-challenge/",
+    link: `${BASE}/games/tap-challenge/`,
   },
   {
     name: "Coming Soon",
@@ -45,7 +44,7 @@ export default function GamesPage() {
 
       if (!user) {
         setAuthorized(false);
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
         return;
       }
 
@@ -54,7 +53,7 @@ export default function GamesPage() {
         await signOut(auth);
 
         if (active) {
-          window.location.replace(LOGIN_URL);
+          window.location.replace(`${BASE}/login/`);
         }
         return;
       }
@@ -65,7 +64,7 @@ export default function GamesPage() {
 
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted && !auth.currentUser) {
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
       }
     };
 
@@ -89,9 +88,8 @@ export default function GamesPage() {
   return (
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-5xl mx-auto">
-
         <Link
-          href="/dashboard/"
+          href={`${BASE}/dashboard/`}
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
@@ -101,9 +99,11 @@ export default function GamesPage() {
           <h1 className="text-3xl font-extrabold">
             DOLLARS<span className="text-lime-400">PLAY</span>
           </h1>
+
           <h2 className="text-2xl font-bold mt-5">
             Games <span className="text-lime-400">Zone</span>
           </h2>
+
           <p className="text-gray-400 mt-2">
             Choose your favourite game and start playing!
           </p>
@@ -117,9 +117,7 @@ export default function GamesPage() {
             >
               <div className="text-5xl mb-5">{game.icon}</div>
 
-              <h3 className="text-xl font-bold">
-                {game.name}
-              </h3>
+              <h3 className="text-xl font-bold">{game.name}</h3>
 
               <p className="text-sm text-gray-400 mt-3 mb-5">
                 {game.description}
@@ -147,9 +145,8 @@ export default function GamesPage() {
         <p className="text-center text-xs text-gray-500 mt-10">
           More exciting games are coming to DOLLARSPLAY.
         </p>
-
       </div>
     </main>
   );
-                                           }
-              
+  }
+            
