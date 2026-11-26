@@ -6,8 +6,7 @@ import Link from "next/link";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 
-const LOGIN_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
 
 const tasks = [
   {
@@ -38,27 +37,35 @@ const tasks = [
 
 export default function TasksPage() {
   useEffect(() => {
+    let active = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!active) return;
+
       if (!user) {
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
         return;
       }
 
       if (!user.emailVerified) {
         await signOut(auth);
-        window.location.replace(LOGIN_URL);
+
+        if (active) {
+          window.location.replace(`${BASE}/login/`);
+        }
       }
     });
 
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted && !auth.currentUser) {
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
       }
     };
 
     window.addEventListener("pageshow", handlePageShow);
 
     return () => {
+      active = false;
       unsubscribe();
       window.removeEventListener("pageshow", handlePageShow);
     };
@@ -68,7 +75,7 @@ export default function TasksPage() {
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-5xl mx-auto">
         <Link
-          href="/dashboard/"
+          href={`${BASE}/dashboard/`}
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
@@ -90,9 +97,11 @@ export default function TasksPage() {
 
         <div className="rounded-2xl border border-lime-400/30 bg-[#151326] p-5 mb-7 text-center">
           <p className="text-gray-400 text-sm">Task Rewards</p>
+
           <p className="text-lime-400 font-bold text-lg mt-2">
             Coming Soon
           </p>
+
           <p className="text-gray-500 text-xs mt-2">
             Verified task completion and secure coin rewards are being prepared.
           </p>
@@ -106,9 +115,7 @@ export default function TasksPage() {
             >
               <div className="text-4xl mb-4">{task.icon}</div>
 
-              <h3 className="text-xl font-bold">
-                {task.title}
-              </h3>
+              <h3 className="text-xl font-bold">{task.title}</h3>
 
               <p className="text-sm text-gray-400 mt-3">
                 {task.description}
@@ -125,5 +132,4 @@ export default function TasksPage() {
       </div>
     </main>
   );
-  }
-          
+}
