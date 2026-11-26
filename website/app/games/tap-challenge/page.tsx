@@ -3,22 +3,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  onAuthStateChanged,
-  signOut,
-} from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "../../../lib/firebase";
 
-const LOGIN_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
+const GAME_DURATION = 10;
 
 export default function TapChallengePage() {
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(GAME_DURATION);
   const [isPlaying, setIsPlaying] = useState(false);
   const [finished, setFinished] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const [endTime, setEndTime] = useState<number | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -28,7 +26,7 @@ export default function TapChallengePage() {
 
       if (!user) {
         setAuthorized(false);
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
         return;
       }
 
@@ -37,7 +35,7 @@ export default function TapChallengePage() {
         await signOut(auth);
 
         if (active) {
-          window.location.replace(LOGIN_URL);
+          window.location.replace(`${BASE}/login/`);
         }
         return;
       }
@@ -48,7 +46,7 @@ export default function TapChallengePage() {
 
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted && !auth.currentUser) {
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
       }
     };
 
@@ -62,36 +60,51 @@ export default function TapChallengePage() {
   }, []);
 
   useEffect(() => {
-    if (!isPlaying || !authorized) return;
+    if (!isPlaying || endTime === null || !authorized) return;
 
-    const timer = setInterval(() => {
-      setTimeLeft((previous) => previous - 1);
-    }, 1000);
+    const updateTimer = () => {
+      const remaining = Math.max(
+        0,
+        Math.ceil((endTime - Date.now()) / 1000)
+      );
+
+      setTimeLeft(remaining);
+
+      if (remaining <= 0) {
+        setIsPlaying(false);
+        setFinished(true);
+        setEndTime(null);
+      }
+    };
+
+    updateTimer();
+    const timer = setInterval(updateTimer, 100);
 
     return () => clearInterval(timer);
-  }, [isPlaying, authorized]);
-
-  useEffect(() => {
-    if (isPlaying && timeLeft <= 0) {
-      setTimeLeft(0);
-      setIsPlaying(false);
-      setFinished(true);
-    }
-  }, [timeLeft, isPlaying]);
+  }, [isPlaying, endTime, authorized]);
 
   function startGame() {
-    if (!authorized) return;
+    if (!authorized || isPlaying) return;
 
     setScore(0);
-    setTimeLeft(10);
+    setTimeLeft(GAME_DURATION);
     setFinished(false);
+    setEndTime(Date.now() + GAME_DURATION * 1000);
     setIsPlaying(true);
   }
 
   function handleTap() {
-    if (isPlaying && authorized) {
-      setScore((previous) => previous + 1);
+    if (!isPlaying || !authorized || endTime === null) return;
+
+    if (Date.now() >= endTime) {
+      setTimeLeft(0);
+      setIsPlaying(false);
+      setFinished(true);
+      setEndTime(null);
+      return;
     }
+
+    setScore((previous) => previous + 1);
   }
 
   if (loading || !authorized) {
@@ -106,7 +119,7 @@ export default function TapChallengePage() {
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-lg mx-auto">
         <Link
-          href="/games/"
+          href={`${BASE}/games/`}
           className="text-lime-400 text-sm"
         >
           ← Back to Games
@@ -171,5 +184,5 @@ export default function TapChallengePage() {
       </div>
     </main>
   );
-      }
+        }
         
