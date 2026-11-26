@@ -7,8 +7,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase";
 
-const LOGIN_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
 
 type PaymentMethod =
   | "Easypaisa"
@@ -37,21 +36,19 @@ export default function WithdrawalsPage() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   useEffect(() => {
-    let unsubscribeWallet: (() => void) | undefined;
     let active = true;
+    let unsubscribeWallet: (() => void) | undefined;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (user) => {
       if (!active) return;
 
-      if (unsubscribeWallet) {
-        unsubscribeWallet();
-        unsubscribeWallet = undefined;
-      }
+      unsubscribeWallet?.();
+      unsubscribeWallet = undefined;
 
       if (!user) {
         setLoggedIn(false);
         setLoading(false);
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
         return;
       }
 
@@ -60,7 +57,7 @@ export default function WithdrawalsPage() {
         await signOut(auth);
 
         if (active) {
-          window.location.replace(LOGIN_URL);
+          window.location.replace(`${BASE}/login/`);
         }
         return;
       }
@@ -102,7 +99,7 @@ export default function WithdrawalsPage() {
 
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted && !auth.currentUser) {
-        window.location.replace(LOGIN_URL);
+        window.location.replace(`${BASE}/login/`);
       }
     };
 
@@ -111,11 +108,7 @@ export default function WithdrawalsPage() {
     return () => {
       active = false;
       unsubscribeAuth();
-
-      if (unsubscribeWallet) {
-        unsubscribeWallet();
-      }
-
+      unsubscribeWallet?.();
       window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
@@ -153,10 +146,7 @@ export default function WithdrawalsPage() {
 
             <div className="wallet-history">
               <h2>Withdrawal Method</h2>
-
-              <p>
-                Select your preferred payment method.
-              </p>
+              <p>Select your preferred payment method.</p>
 
               <div className="withdrawal-methods">
                 {(
@@ -194,9 +184,7 @@ export default function WithdrawalsPage() {
                 className="withdrawal-input"
                 type="text"
                 value={accountTitle}
-                onChange={(e) =>
-                  setAccountTitle(e.target.value)
-                }
+                onChange={(e) => setAccountTitle(e.target.value)}
                 placeholder="Enter account holder name"
               />
 
@@ -210,9 +198,7 @@ export default function WithdrawalsPage() {
                 className="withdrawal-input"
                 type="text"
                 value={accountNumber}
-                onChange={(e) =>
-                  setAccountNumber(e.target.value)
-                }
+                onChange={(e) => setAccountNumber(e.target.value)}
                 placeholder={
                   method === "Bank Transfer"
                     ? "Enter your IBAN"
@@ -229,9 +215,7 @@ export default function WithdrawalsPage() {
                 type="number"
                 min="1"
                 value={amount}
-                onChange={(e) =>
-                  setAmount(e.target.value)
-                }
+                onChange={(e) => setAmount(e.target.value)}
                 placeholder="Enter coin amount"
               />
 
@@ -261,10 +245,7 @@ export default function WithdrawalsPage() {
           </>
         )}
 
-        <Link
-          href="/dashboard/"
-          className="back-home"
-        >
+        <Link href={`${BASE}/dashboard/`} className="back-home">
           ← Back to Dashboard
         </Link>
       </section>
@@ -328,3 +309,4 @@ export default function WithdrawalsPage() {
     </main>
   );
         }
+        
