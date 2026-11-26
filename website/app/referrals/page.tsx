@@ -9,8 +9,7 @@ import {
 } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 
-const LOGIN_URL =
-  "https://stackorbitstudio.github.io/DOLLARSPLAY-OFFICIAL-WEBSITE-/login/";
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
 
 export default function ReferralsPage() {
   const [referralCode, setReferralCode] = useState("");
@@ -19,15 +18,17 @@ export default function ReferralsPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.replace(LOGIN_URL);
-        return;
-      }
+    let active = true;
 
-      if (!user.emailVerified) {
-        await signOut(auth);
-        window.location.replace(LOGIN_URL);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (!active) return;
+
+      if (!user || !user.emailVerified) {
+        if (user) await signOut(auth);
+
+        if (active) {
+          window.location.replace(`${BASE}/login/`);
+        }
         return;
       }
 
@@ -35,32 +36,55 @@ export default function ReferralsPage() {
 
       setReferralCode(code);
       setReferralLink(
-        `${window.location.origin}/DOLLARSPLAY-OFFICIAL-WEBSITE-/signup/?ref=${encodeURIComponent(code)}`
+        `${window.location.origin}${BASE}/signup/?ref=${encodeURIComponent(code)}`
       );
 
       setLoading(false);
     });
 
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted && !auth.currentUser) {
-        window.location.replace(LOGIN_URL);
+    const handlePageShow = () => {
+      const user = auth.currentUser;
+
+      if (!user || !user.emailVerified) {
+        window.location.replace(`${BASE}/login/`);
       }
     };
 
     window.addEventListener("pageshow", handlePageShow);
 
     return () => {
+      active = false;
       unsubscribe();
       window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
 
   async function copyText(text: string) {
+    if (!text) return;
+
     try {
       await navigator.clipboard.writeText(text);
       setMessage("Copied successfully!");
     } catch {
       setMessage("Copy failed. Please copy the text manually.");
+    }
+  }
+
+  async function shareReferral() {
+    if (!referralLink) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Join DOLLARSPLAY",
+          text: "Join me on DOLLARSPLAY!",
+          url: referralLink,
+        });
+      } catch {
+        // Sharing cancelled or unavailable.
+      }
+    } else {
+      await copyText(referralLink);
     }
   }
 
@@ -76,7 +100,7 @@ export default function ReferralsPage() {
     <main className="min-h-screen bg-[#090611] text-white px-5 py-8">
       <div className="max-w-2xl mx-auto">
         <Link
-          href="/dashboard/"
+          href={`${BASE}/dashboard/`}
           className="text-lime-400 text-sm"
         >
           ← Back to Dashboard
@@ -132,17 +156,7 @@ export default function ReferralsPage() {
           </button>
 
           <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: "Join DOLLARSPLAY",
-                  text: "Join me on DOLLARSPLAY!",
-                  url: referralLink,
-                }).catch(() => {});
-              } else {
-                copyText(referralLink);
-              }
-            }}
+            onClick={shareReferral}
             className="w-full mt-3 rounded-xl border border-purple-500 py-4 font-bold text-white"
           >
             Share With Friends
@@ -159,12 +173,13 @@ export default function ReferralsPage() {
           <h2 className="font-bold text-lg">
             Referral Rewards
           </h2>
+
           <p className="text-gray-400 text-sm mt-2">
-            Referral tracking and coin rewards will be activated after secure signup integration.
+            Referral tracking and coin rewards will be activated after secure backend integration.
           </p>
         </section>
       </div>
     </main>
   );
-                                           }
-          
+    }
+    
