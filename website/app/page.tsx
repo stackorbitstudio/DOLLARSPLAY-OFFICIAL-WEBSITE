@@ -1,7 +1,9 @@
 
-export default function Home() {
-  const base = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
+import Link from "next/link";
 
+const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
+
+export default function Home() {
   return (
     <>
       <section className="wrap hero">
@@ -19,18 +21,18 @@ export default function Home() {
           </p>
 
           <div className="hero-buttons">
-            <a href="/signup/" className="btn">
+            <Link href="/signup/" className="btn">
               Create Account
-            </a>
-            <a href="/login/" className="btn btn-ghost">
+            </Link>
+            <Link href="/login/" className="btn btn-ghost">
               Login
-            </a>
+            </Link>
           </div>
         </div>
 
         <div className="hero-art">
           <img
-            src={`${base}/logo.png`}
+            src={`${BASE}/logo.png`}
             alt="Official DollarsPlay Logo"
             width="280"
             height="280"
@@ -40,22 +42,10 @@ export default function Home() {
       </section>
 
       <section className="wrap stats">
-        <div>
-          <strong>GAMES</strong>
-          <span>Play and explore</span>
-        </div>
-        <div>
-          <strong>TASKS</strong>
-          <span>Complete activities</span>
-        </div>
-        <div>
-          <strong>REFERRALS</strong>
-          <span>Build your network</span>
-        </div>
-        <div>
-          <strong>REWARDS</strong>
-          <span>Explore opportunities</span>
-        </div>
+        <div><strong>GAMES</strong><span>Play and explore</span></div>
+        <div><strong>TASKS</strong><span>Complete activities</span></div>
+        <div><strong>REFERRALS</strong><span>Build your network</span></div>
+        <div><strong>REWARDS</strong><span>Explore opportunities</span></div>
       </section>
 
       <section className="section wrap" id="features">
@@ -66,29 +56,29 @@ export default function Home() {
         </div>
 
         <div className="feature-grid">
-          <a href="/games/" className="feature">
+          <Link href="/games/" className="feature">
             <div className="icon-box">🎮</div>
             <h3>Games</h3>
             <p>Explore entertaining games and challenges.</p>
-          </a>
+          </Link>
 
-          <a href="/tasks/" className="feature">
+          <Link href="/tasks/" className="feature">
             <div className="icon-box">🎯</div>
             <h3>Tasks</h3>
             <p>Complete activities and track progress.</p>
-          </a>
+          </Link>
 
-          <a href="/referrals/" className="feature">
+          <Link href="/referrals/" className="feature">
             <div className="icon-box">👥</div>
             <h3>Referrals</h3>
             <p>Invite members and grow your network.</p>
-          </a>
+          </Link>
 
-          <a href="/wallet/" className="feature">
+          <Link href="/wallet/" className="feature">
             <div className="icon-box">💰</div>
             <h3>Wallet</h3>
             <p>Manage your platform rewards.</p>
-          </a>
+          </Link>
         </div>
       </section>
 
@@ -105,13 +95,11 @@ export default function Home() {
               <h3>Create Your Account</h3>
               <p>Register and complete your profile.</p>
             </article>
-
             <article className="step">
               <span>02</span>
               <h3>Explore the Platform</h3>
               <p>Discover games, tasks and referrals.</p>
             </article>
-
             <article className="step">
               <span>03</span>
               <h3>Track Your Progress</h3>
@@ -127,15 +115,15 @@ export default function Home() {
           <h2>Welcome to DollarsPlay</h2>
           <p>A world of games, activities and community awaits.</p>
 
-          <a href="/signup/" className="btn">
+          <Link href="/signup/" className="btn">
             Create Account
-          </a>
+          </Link>
 
           <p>
-            Already a member? <a href="/login/">Login here</a>
+            Already a member? <Link href="/login/">Login here</Link>
           </p>
         </div>
       </section>
     </>
   );
-            }
+          }
