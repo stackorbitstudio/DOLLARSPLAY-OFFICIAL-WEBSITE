@@ -3,28 +3,7 @@ export default function Home() {
   const base = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
 
   return (
-    <main>
-      <header className="wrap nav">
-        <a href={`${base}/`} className="brand">
-          <img
-            src={`${base}/logo.png`}
-            alt="DollarsPlay Logo"
-            width="48"
-            height="48"
-          />
-          DOLLARSPLAY
-        </a>
-
-        <nav>
-          <a href="#features">Features</a>
-          <a href="#how">How It Works</a>
-          <a href={`${base}/login/`}>Login</a>
-          <a href={`${base}/signup/`} className="btn">
-            Create Account
-          </a>
-        </nav>
-      </header>
-
+    <>
       <section className="wrap hero">
         <div>
           <span className="eyebrow">WELCOME TO DOLLARSPLAY</span>
@@ -40,10 +19,10 @@ export default function Home() {
           </p>
 
           <div className="hero-buttons">
-            <a href={`${base}/signup/`} className="btn">
+            <a href="/signup/" className="btn">
               Create Account
             </a>
-            <a href={`${base}/login/`} className="btn btn-ghost">
+            <a href="/login/" className="btn btn-ghost">
               Login
             </a>
           </div>
@@ -61,10 +40,22 @@ export default function Home() {
       </section>
 
       <section className="wrap stats">
-        <div><strong>GAMES</strong><span>Play and explore</span></div>
-        <div><strong>TASKS</strong><span>Complete activities</span></div>
-        <div><strong>REFERRALS</strong><span>Build your network</span></div>
-        <div><strong>REWARDS</strong><span>Explore opportunities</span></div>
+        <div>
+          <strong>GAMES</strong>
+          <span>Play and explore</span>
+        </div>
+        <div>
+          <strong>TASKS</strong>
+          <span>Complete activities</span>
+        </div>
+        <div>
+          <strong>REFERRALS</strong>
+          <span>Build your network</span>
+        </div>
+        <div>
+          <strong>REWARDS</strong>
+          <span>Explore opportunities</span>
+        </div>
       </section>
 
       <section className="section wrap" id="features">
@@ -75,25 +66,25 @@ export default function Home() {
         </div>
 
         <div className="feature-grid">
-          <a href={`${base}/games/`} className="feature">
+          <a href="/games/" className="feature">
             <div className="icon-box">🎮</div>
             <h3>Games</h3>
             <p>Explore entertaining games and challenges.</p>
           </a>
 
-          <a href={`${base}/tasks/`} className="feature">
+          <a href="/tasks/" className="feature">
             <div className="icon-box">🎯</div>
             <h3>Tasks</h3>
             <p>Complete activities and track progress.</p>
           </a>
 
-          <a href={`${base}/referrals/`} className="feature">
+          <a href="/referrals/" className="feature">
             <div className="icon-box">👥</div>
             <h3>Referrals</h3>
             <p>Invite members and grow your network.</p>
           </a>
 
-          <a href={`${base}/wallets/`} className="feature">
+          <a href="/wallet/" className="feature">
             <div className="icon-box">💰</div>
             <h3>Wallet</h3>
             <p>Manage your platform rewards.</p>
@@ -114,11 +105,13 @@ export default function Home() {
               <h3>Create Your Account</h3>
               <p>Register and complete your profile.</p>
             </article>
+
             <article className="step">
               <span>02</span>
               <h3>Explore the Platform</h3>
               <p>Discover games, tasks and referrals.</p>
             </article>
+
             <article className="step">
               <span>03</span>
               <h3>Track Your Progress</h3>
@@ -134,24 +127,15 @@ export default function Home() {
           <h2>Welcome to DollarsPlay</h2>
           <p>A world of games, activities and community awaits.</p>
 
-          <a href={`${base}/signup/`} className="btn">
+          <a href="/signup/" className="btn">
             Create Account
           </a>
 
           <p>
-            Already a member?{" "}
-            <a href={`${base}/login/`}>Login here</a>
+            Already a member? <a href="/login/">Login here</a>
           </p>
         </div>
       </section>
-
-      <footer>
-        <div className="wrap">
-          <div className="brand">DOLLARSPLAY</div>
-          <p>© 2026 DollarsPlay. All rights reserved.</p>
-        </div>
-      </footer>
-    </main>
+    </>
   );
             }
-          
