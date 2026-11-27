@@ -10,8 +10,6 @@ import {
   sendVerificationEmail,
 } from "../../lib/auth";
 
-const BASE = "/DOLLARSPLAY-OFFICIAL-WEBSITE";
-
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -104,9 +102,9 @@ export default function SignupPage() {
 
   return (
     <main className="auth-page">
-      <Link href={`${BASE}/`} className="auth-brand">
+      <Link href="/" className="auth-brand">
         <img
-          src={`${BASE}/logo.png`}
+          src="/DOLLARSPLAY-OFFICIAL-WEBSITE/logo.png"
           alt="DollarsPlay"
         />
         <span>DOLLARSPLAY</span>
@@ -194,10 +192,10 @@ export default function SignupPage() {
 
         <p className="auth-footer">
           Already have an account?{" "}
-          <Link href={`${BASE}/login/`}>Login here.</Link>
+          <Link href="/login/">Login here.</Link>
         </p>
 
-        <Link href={`${BASE}/`} className="back-home">
+        <Link href="/" className="back-home">
           ← Back to Home
         </Link>
       </section>
@@ -207,5 +205,5 @@ export default function SignupPage() {
       </p>
     </main>
   );
-    }
-        
+        }
+          
